@@ -56,7 +56,8 @@ CREATE TABLE Exercise_Group(
 	);
 
 CREATE TABLE Workout_Result(
-	Strain			VARCHAR(30),
+	Strain			INTEGER NOT NULL,
+	Unit			VARCHAR(30) NOT NULL,
 	Res_Date		DATE NOT NULL,
 	Execution_Nr	INTEGER NOT NULL,
 	Repetitions		INTEGER NOT NULL,
