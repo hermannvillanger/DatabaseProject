@@ -42,7 +42,7 @@ public class Driver {
 		}
 	}
 	
-	//EXERCISE
+//EXERCISE
 	public String createExercise(){
 		System.out.println("Create Exercise");
 		System.out.println("Exercise Name:");
@@ -127,7 +127,7 @@ public class Driver {
 		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name)" +
 		"VALUES (" + Exercise_Name + "," + Group_Name + ")";
 	}
-	//WORKOUT
+//WORKOUT
 	public String createNote() throws SQLException{
 		System.out.println("Create Note");
 		
@@ -152,14 +152,12 @@ public class Driver {
 		System.out.println("Workout End:");
 		System.out.println(">");
 		String Workout_End = scanner.nextLine();
-		
 		System.out.println("Shape:");
 		System.out.println(">");
 		String Shape = scanner.nextLine();
 		System.out.println("Performance:");
 		System.out.println(">");
 		String Performance = scanner.nextLine();
-		
 		System.out.println("Template Id:");
 		System.out.println(">");
 		String Template_Id = scanner.nextLine();
@@ -186,7 +184,7 @@ public class Driver {
 				+ "on Workout." + Workout_Start + " = Workout_Contains." + Workout_Start);
 		System.out.println("Exercises:");
 		while(myRs.next()){
-			System.out.println(myRs.getString("Exercise_Name") + "," + myRs.getString("Description"));
+			System.out.println(myRs.getString("Exercise_Name") + ": " + myRs.getString("Description"));
 		}
 		
 	}
@@ -203,7 +201,7 @@ public class Driver {
 		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start)" +
 		"VALUES (" + Exercise_Name + "," + Workout_Start +")";
 	}
-	//TEMPLATE
+//TEMPLATE
 	public String createTemplate() throws SQLException{
 		System.out.println("Create Template");
 		System.out.println("Template Name:");
@@ -225,7 +223,7 @@ public class Driver {
 		return "INSERT INTO Template_Contains (Exercise_Name,Template_Id)" +
 		"VALUES (" + Exercise_Name + "," + Template_Id + ")";
 	}
-	//GPS
+//GPS
 	public String createGps(){
 		System.out.println("Create Gps result");
 		System.out.println("Gps Time:");
@@ -253,9 +251,34 @@ public class Driver {
 		"VALUES (" + Gps_Time + "," + Workout_Start +")";
 	}
 	
+	public void getResults(String Exercise_Name){
+		
+		ResultSet results = myConn.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name);
+		System.out.println("Results for " + Exercise_Name);
+		while(results.next()){
+			System.out.println(results.getString("Res_Date") + "," +results.getString("Strain") + "," + results.getString("Unit") + "," + results.getString("Repetitions"));
+		}	
+	}
+	
+	public int getGoal(String Exercise_Name){
+		ResultSet goal = myConn.executeQuery("SELECT Goal FROM Goal Where Exercise_Name = " + Exercise_Name);
+		return goal.getInt("Goal");
+	}
+	
+	public void getBestResult(String Exercise_Name){
+		
+		
+		//NOTE! Might crash at the MAX(a*b).
+		ResultSet best = myConn.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name + " AND MAX(Strain*Repetitions");
+		int strain = best.getInt("Strain");
+		int reps = best.getInt("Repetitions");
+		String unit = best.getString("Unit");
+		int total = strain*reps;
+		System.out.println("Best result for " + Exercise_Name);
+		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + getGoal(Exercise_Name)-total);
+	
 }
 //DELETE
-	
 	private String DeleteExercise(String exercise) throws SQLException{
 		return "delete * from exercise where Exercise_Name="+exercise;
 	}
