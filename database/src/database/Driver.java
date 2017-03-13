@@ -304,11 +304,12 @@ public class Driver {
 				makemannen(null);
 				System.out.print("> ");
 				num=scanner.nextInt();
-				makemannen(num); //må lages
+				getTemplates(num); //må lages
 				ArrayList<String> exercises=getExercisesFromTemplate(num); //må lages
 				for(int i=0;i<exercises.size();i++){
-					createWorkoutContains(Workout_Start,exercises.get(i))
+					returnString += createWorkoutContains(Workout_Start,exercises.get(i));
 				}
+			}
 				boolean go;
 				System.out.println("Ynskje du å leggje te fleire øvingar? (Y/N)");
 				ans=scanner.next();
@@ -319,9 +320,23 @@ public class Driver {
 					go=false;
 				}
 				while(go){
+					System.out.println("Kva for ein øving ynskje du å leggja te?");
 					
+					ans=scanner.next();
+					System.out.println("Ynskje du å leggje te fleire øvingar? (Y/N)");
+					getExercises(); //må lages
+					System.out.print("> ");
+					ans=scanner.next();
+					returnString+=createWorkoutContains(Workout_start,ans);
+					if(ans.contains("J")||ans.contains("j")){
+						go=true;
+					}
+					else if(ans.contains("N")||ans.contains("n")){
+						go=false;
 				}
 			}
+			System.out.println("Følgende trening er nå oppretta: ");
+			printWorkout(); //må lages
 	}
 		
 }
