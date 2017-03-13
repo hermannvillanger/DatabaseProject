@@ -95,7 +95,7 @@ CREATE TABLE Gps_Link(
 );
 
 CREATE TABLE Goal(
-	Goal			VARCHAR(140),
+	Goal			INTEGER NOT NULL,
 	Start_Date		DATE,
 	End_Date		DATE,
 	Goal_Id			INTEGER NOT NULL auto_increment,
