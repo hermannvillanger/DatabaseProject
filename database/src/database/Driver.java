@@ -17,31 +17,43 @@ public class Driver {
 		scanner = new Scanner(System.in);
 	}
 	void run(){
-		try{
-			// 1. Get a connection to database
-			myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projectdatabase?autoReconnect=true&useSSL=false","project","project");
-			
-			boolean makeChanges = true;
-			while(makeChanges){
-				// 2. Create a statement
-				myStmt = myConn.createStatement();
-				// 3. Execute SQL query
-				
-				//Still spørsmål
-				
-				ResultSet myRs = myStmt.executeQuery("select * from exercise");
-				// 4. Process the result set
-				while(myRs.next()){
-					System.out.println(myRs.getString("exercise_name") + "," + myRs.getString("description"));
-				}	
-				makeChanges = false;
-			}
-		}
-		catch(Exception exc){
-			exc.printStackTrace();
-		}
-	}
-	
+ 		try{
+ 			// 1. Get a connection to database
+ 			myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projectdatabase?autoReconnect=true&useSSL=false","project","project");
+ 			
+ 			boolean makeChanges = true;
+ 			while(makeChanges){
+ 				// 2. Create a statement
+ 				System.out.println("What do you want to do?");
+ 				System.out.println("1: Create template");
+ 				System.out.println("2: Create exercise");
+ 				System.out.println("3: Create workout");
+ 				num=scanner.nextInt();
+ 				switch num{
+ 				case 1: template_creation();
+ 				break;
+ 				case 2: exercise_creation();
+ 				break;
+ 				case 3: workout_creation();
+ 				break;
+ 				}
+ 				myStmt = myConn.createStatement();
+ 				// 3. Execute SQL query
+ 				
+ 				//Still spørsmål
+ 				
+ 				ResultSet myRs = myStmt.executeQuery("select * from exercise");
+ 				// 4. Process the result set
+ 				while(myRs.next()){
+ 					System.out.println(myRs.getString("exercise_name") + "," + myRs.getString("description"));
+ 				}	
+ 				makeChanges = false;
+ 			}
+ 		}
+ 		catch(Exception exc){
+ 			exc.printStackTrace();
+ 		}
+ 	}
 //EXERCISE
 	public String createExercise(){
 		System.out.println("Create Exercise");
@@ -289,6 +301,76 @@ public class Driver {
 		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + getGoal(Exercise_Name)-total);
 	
 }
+	
+	private void workout_creation(){
+		System.out.println("Create Workout");
+		System.out.println("Workout Start:");
+		System.out.println(">");
+		String Workout_Start = scanner.nextLine();
+		System.out.println("Workout End:");
+		System.out.println(">");
+		String Workout_End = scanner.nextLine();
+		
+		System.out.println("Shape:");
+		System.out.println(">");
+		String Shape = scanner.nextLine();
+		System.out.println("Performance:");
+		System.out.println(">");
+		String Performance = scanner.nextLine();
+		
+		System.out.println("Template Id:");
+		System.out.println(">");
+		String Template_Id = scanner.nextLine();
+		System.out.println("Climate:");
+		System.out.println(">");
+		String Climate = scanner.nextLine();
+		
+		String returnString = "INSERT INTO Workout (Workout_Start,Workout_End,Shape,Performance,Template_Id,Climate)" +
+		"VALUES (" + Workout_Start + "," + Workout_End + "," + Shape+ "," + Performance +
+		Template_Id + "," + Climate + "); ";
+			
+			System.out.println("Ynskje du å leggja te ein mal for treninga di? (J/N)");
+			String ans=scanner.next();
+			if(ans.equals("J")||ans.equals("j")){
+				System.out.println("kva for ein mal ynskje du å bruka? ");
+				makemannen(null);
+				System.out.print("> ");
+				num=scanner.nextInt();
+				makemannen(num); //må lages
+				ArrayList<String> exercises=getExercisesFromTemplate(num);
+				for(int i=0;i<exercises.size();i++){
+					createWorkoutContains(Workout_Start,exercises.get(i))
+				}
+				boolean go;
+				System.out.println("Ynskje du å leggje te fleire øvingar? (Y/N)");
+				ans=scanner.next();
+				if(ans.contains("J")||ans.contains("j")){
+					go=true;
+				}
+				else if(ans.contains("N")||ans.contains("n")){
+					go=false;
+				}
+				while(go){
+					System.out.println("Kva for ein øving ynskje du å leggja te?");
+					ans=scanner.next();
+					System.out.println("Ynskje du å leggje te fleire øvingar? (Y/N)");
+					printExercises(); 
+					System.out.print("> ");
+					ans=scanner.next();
+					returnString+=createWorkoutContains(Workout_start,ans);
+					if(ans.contains("J")||ans.contains("j")){
+						go=true;
+					}
+					else if(ans.contains("N")||ans.contains("n")){
+						go=false;
+					}
+				}
+				System.out.println("Følgende trening er nå oppretta: ");
+				printWorkout(); 
+				return returnString;
+				}
+			}
+	
 //DELETE
 	private String DeleteExercise(String exercise) throws SQLException{
 		return "delete * from exercise where Exercise_Name="+exercise;
