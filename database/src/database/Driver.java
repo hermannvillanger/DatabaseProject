@@ -8,10 +8,7 @@
  	Scanner scanner;
  	Connection myConn; 
  	Statement myStmt;
- 	
- //Test push fra Hermann
- 	//Hei Hermann
- 	
+
  	public static void main(String[] args) {
  		Driver driver = new Driver();
  		driver.init();
@@ -29,6 +26,19 @@
  			boolean makeChanges = true;
  			while(makeChanges){
  				// 2. Create a statement
+ 				System.out.println("What do you want to do?");
+ 				System.out.println("1: Create template");
+ 				System.out.println("2: Create exercise");
+ 				System.out.println("3: Create workout");
+ 				num=scanner.nextInt();
+ 				switch num{
+ 				case 1: template_creation();
+ 				break;
+ 				case 2: exercise_creation();
+ 				break;
+ 				case 3: workout_creation();
+ 				break;
+ 				}
  				myStmt = myConn.createStatement();
  				// 3. Execute SQL query
  				
@@ -52,7 +62,7 @@
  		return Integer.parseInt(myRs.getString(0)) + 1;
  	}
  	
- 	//EXERCISE
+ //EXERCISE
  	public String createExercise(){
  		System.out.println("Create Exercise");
  		System.out.println("Exercise Name:");
@@ -139,7 +149,7 @@
  		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name)" +
 		"VALUES (" + Exercise_Name + "," + Group_Name + "); ";
  	}
- 	//WORKOUT
+ //WORKOUT
  	public String createNote() throws SQLException{
  		System.out.println("Create Note");
  		
@@ -197,7 +207,7 @@
  		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start)" +
 		"VALUES (" + Exercise_Name + "," + Workout_Start +"); ";
  	}
- 	//TEMPLATE
+ //TEMPLATE
  	public String createTemplate() throws SQLException{
  		System.out.println("Create Template");
  		System.out.println("Template Name:");
@@ -221,7 +231,7 @@
  		return "INSERT INTO Template_Contains (Exercise_Name,Template_Id)" +
 		"VALUES (" + Exercise_Name + "," + Template_Id + "); ";
  	}
- 	//GPS
+ //GPS
  	public String createGps(){
  		System.out.println("Create Gps result");
  		System.out.println("Gps Time:");
@@ -249,7 +259,6 @@
  		"VALUES (" + Gps_Time + "," + Workout_Start +")";
  	}
  	
- }
  //DELETE
  	
  	private String DeleteExercise(String exercise) throws SQLException{
@@ -271,7 +280,7 @@
  		return "delete * from GPS where GPS_Time="+Gps;
  	}
 	
-	private void workout_creation(String workout_start){
+	private void workout_creation(){
 		System.out.println("Create Workout");
 		System.out.println("Workout Start:");
 		System.out.println(">");
@@ -306,7 +315,7 @@
 				System.out.print("> ");
 				num=scanner.nextInt();
 				makemannen(num); //må lages
-				ArrayList<String> exercises=getExercisesFromTemplate(num); //må lages
+				ArrayList<String> exercises=getExercisesFromTemplate(num);
 				for(int i=0;i<exercises.size();i++){
 					createWorkoutContains(Workout_Start,exercises.get(i))
 				}
@@ -323,7 +332,7 @@
 					System.out.println("Kva for ein øving ynskje du å leggja te?");
 					ans=scanner.next();
 					System.out.println("Ynskje du å leggje te fleire øvingar? (Y/N)");
-					getExercises(); //må lages
+					printExercises(); 
 					System.out.print("> ");
 					ans=scanner.next();
 					returnString+=createWorkoutContains(Workout_start,ans);
@@ -335,9 +344,9 @@
 					}
 				}
 				System.out.println("Følgende trening er nå oppretta: ");
-				printWorkout(); //må lages
+				printWorkout(); 
+				return returnString;
 				}
 			}
-	}
-		
+	
  } 
