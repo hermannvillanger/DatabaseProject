@@ -320,7 +320,22 @@
 					go=false;
 				}
 				while(go){
-					
+					System.out.println("Kva for ein øving ynskje du å leggja te?");
+					ans=scanner.next();
+					System.out.println("Ynskje du å leggje te fleire øvingar? (Y/N)");
+					getExercises(); //må lages
+					System.out.print("> ");
+					ans=scanner.next();
+					returnString+=createWorkoutContains(Workout_start,ans);
+					if(ans.contains("J")||ans.contains("j")){
+						go=true;
+					}
+					else if(ans.contains("N")||ans.contains("n")){
+						go=false;
+					}
+				}
+				System.out.println("Følgende trening er nå oppretta: ");
+				printWorkout(); //må lages
 				}
 			}
 	}
