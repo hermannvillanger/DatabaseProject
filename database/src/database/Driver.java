@@ -188,6 +188,7 @@ public class Driver {
 		while(myRs.next()){
 			System.out.println(myRs.getString("Exercise_Name") + "," + myRs.getString("Description"));
 		}
+		
 	}
 	
 	public String createWorkoutContains(){
