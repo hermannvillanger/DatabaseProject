@@ -1,6 +1,7 @@
 package database;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Driver {
@@ -23,30 +24,19 @@ public class Driver {
  			
  			boolean makeChanges = true;
  			while(makeChanges){
- 				// 2. Create a statement
  				System.out.println("What do you want to do?");
  				System.out.println("1: Create template");
  				System.out.println("2: Create exercise");
  				System.out.println("3: Create workout");
- 				num=scanner.nextInt();
- 				switch num{
+ 				Integer num=scanner.nextInt();
+ 				switch (num){
  				case 1: template_creation();
- 				break;
+				break;
  				case 2: exercise_creation();
  				break;
- 				case 3: workout_creation();
+ 				case 3: workoutCreation();
  				break;
  				}
- 				myStmt = myConn.createStatement();
- 				// 3. Execute SQL query
- 				
- 				//Still spørsmål
- 				
- 				ResultSet myRs = myStmt.executeQuery("select * from exercise");
- 				// 4. Process the result set
- 				while(myRs.next()){
- 					System.out.println(myRs.getString("exercise_name") + "," + myRs.getString("description"));
- 				}	
  				makeChanges = false;
  			}
  		}
@@ -54,93 +44,236 @@ public class Driver {
  			exc.printStackTrace();
  		}
  	}
-//EXERCISE
+//TODO CREATE TABLE
 	public String createExercise(){
 		System.out.println("Create Exercise");
-		System.out.println("Exercise Name:");
-		System.out.println(">");
-		String Exercise_Name = scanner.nextLine();
-		System.out.println("Description:");
-		System.out.println(">");
-		String Description = scanner.nextLine();
-		System.out.println("Other:");
-		System.out.println(">");
-		String Other = scanner.nextLine();
+		String Exercise_Name = getExerciseName();
+		String Description = getDescription();
 		
-		return "INSERT INTO Exercise (Exercise_Name,Description,Climate,Other)" +
-		"VALUES (" + Exercise_Name + "," + Description + "," + Other + ")";
+		return "INSERT INTO Exercise (Exercise_Name,Description) " +
+		"VALUES (" + Exercise_Name + "," + Description + ")";
 	}
 	public String createExerciseGroup(){
 		System.out.println("Create Exercise Group");
-		System.out.println("Group Name:");
-		System.out.println(">");
-		String Group_Name = scanner.nextLine();
-		System.out.println("Description:");
-		System.out.println(">");
-		String Description = scanner.nextLine();
+		String Group_Name = getGroupName();
+		String Description = getDescription();
 		
-		return "INSERT INTO Workout_Contains (Group_Name,Description)" +
+		return "INSERT INTO Workout_Contains (Group_Name,Description) " +
 		"VALUES (" + Group_Name + "," + Description +")";
 	}
 	public String createExerciseResult(){
 		System.out.println("Exercise Result");
-		System.out.println("Strain:");
-		System.out.println(">");
-		String Strain = scanner.nextLine();
-		System.out.println("Res Date:");
-		System.out.println(">");
-		String Res_Date = scanner.nextLine();
-		System.out.println("Execution Nr");
-		System.out.println(">");
-		String Execution_Nr = scanner.nextLine();
-		System.out.println("Repetitions:");
-		System.out.println(">");
-		String Repetitions = scanner.nextLine();
-		System.out.println("Exercise Name:");
-		System.out.println(">");
-		String Exercise_Name = scanner.nextLine();
-		System.out.println("Workout Start:");
-		System.out.println(">");
-		String Workout_Start = scanner.nextLine();
+		String Strain = getStrain();
+		String Res_Date = getSpecificDate("Res");
+		String Execution_Nr = getExecutionNr();
+		String Repetitions = getRepetitions();
+		String Exercise_Name = getExerciseName();
+		String Workout_Start = getWorkoutStart();
 		
-		return "INSERT INTO Workout_Result (Strain,Res_Date,Execution_Nr,Repetitions,Exercise_Name,Workout_Start)" +
+		return "INSERT INTO Workout_Result (Strain,Res_Date,Execution_Nr,Repetitions,Exercise_Name,Workout_Start) " +
 		"VALUES (" + Strain + "," + Res_Date + "," + Execution_Nr + "," + Repetitions + "," + 
 		Exercise_Name + "," + Workout_Start +")";
 	}
-	public String createGoal() throws SQLException{
+	public String createGoal(){
 		System.out.println("Create Goal");
-		System.out.println("Goal:");
-		System.out.println(">");
-		String Goal = scanner.nextLine();
-		System.out.println("Start Date:");
-		System.out.println(">");
-		String Start_Date = scanner.nextLine();
-		System.out.println("End Date");
-		System.out.println(">");
-		String End_Date = scanner.nextLine();
+		String Goal = getGoal();
+		String Start_Date = getSpecificDate("Start");
+		String End_Date = getSpecificDate("End");
+		String Exercise_Name = getExerciseName();
 		
-		System.out.println("Exercise Name:");
-		System.out.println(">");
-		String Exercise_Name = scanner.nextLine();
-		
-		return "INSERT INTO Goal (Goal,Start_Date,End_Date,Exercise_Name)" +
-		"VALUES (" + Goal + "," + Start_Date + "," + End_Date + "," + "," + 
-		Exercise_Name + ")";
+		return "INSERT INTO Goal (Goal,Start_Date,End_Date,Exercise_Name) " +
+		"VALUES (" + Goal + "," + Start_Date + "," + End_Date + "," + Exercise_Name + ")";
 	}
 	public String insertExerciseInGroup(){
 		System.out.println("Insert Exercise into Group");
-		System.out.println("Exercise Name:");
-		System.out.println(">");
-		String Exercise_Name = scanner.nextLine();
-		System.out.println("Group Name:");
-		System.out.println(">");
-		String Group_Name = scanner.nextLine();
+		String Exercise_Name = getExerciseName();
+		String Group_Name = getGroupName();
 		
-		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name)" +
+		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name) " +
 		"VALUES (" + Exercise_Name + "," + Group_Name + ")";
 	}
-	
-	public void printExercises(){
+	public String createNote(){
+		System.out.println("Create Note");
+		String Workout_Start = getWorkoutStart();
+		String Purpose = getPurpose();
+		String Tips = getTips();
+		
+		return "INSERT INTO Note (Workout_Start,Purpose,Tips) " +
+		"VALUES (" + Workout_Start + "," + Purpose + "," + Tips +")";
+	}
+	public String createWorkout(){
+		System.out.println("Create Workout");
+		String Workout_Start = getWorkoutStart();
+		String Workout_End = getWorkoutEnd();
+		String Shape = getShape();
+		String Performance = getPerformance();
+		String Template_Id = getTemplateId();
+		String Climate = getClimate();
+		
+		return "INSERT INTO Workout (Workout_Start,Workout_End,Shape,Performance,Template_Id,Climate)" +
+		"VALUES (" + Workout_Start + "," + Workout_End + "," + Shape+ "," + Performance +
+		Template_Id + "," + Climate + ")";
+	}
+	public String createWorkoutContains(String Workout_Start,String Exercise_Name){		
+		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start)" +
+		"VALUES (" + Exercise_Name + "," + Workout_Start +")";
+	}
+	public String createTemplate(){
+		System.out.println("Create Template");
+		String Template_Name = getTemplateName();
+		
+		return "INSERT INTO Template (Template_Name)" +
+		"VALUES (" + Template_Name + ")";
+	}
+	public String addToTemplate(){
+		System.out.println("Add Exercise To Template");
+		String Exercise_Name = getExerciseName();
+		String Template_Id = getTemplateId();
+		
+		return "INSERT INTO Template_Contains (Exercise_Name,Template_Id)" +
+		"VALUES (" + Exercise_Name + "," + Template_Id + ")";
+	}
+	public String createGps(){
+		System.out.println("Create Gps result");
+		String Gps_Time = getGpsTime();
+		String Coordinates = getCoordinates();
+		String Pulse = getPulse();
+		
+		return "INSERT INTO Gps (Gps_Time,Coordinates,Pulse)" +
+		"VALUES (" + Gps_Time + "," + Coordinates + "," + Pulse + ")";
+	}
+	public String createGps_Link(){
+		System.out.println("Add To Gps");
+		String Gps_Time = getGpsTime();
+		String Workout_Start = getWorkoutStart();
+		return "INSERT INTO Template (Gps_Time,Workout_Start)" +
+		"VALUES (" + Gps_Time + "," + Workout_Start +")";
+	}
+//TODO END CREATE TABLE
+//TODO GET FROM USER
+	private String getDescription() {
+		System.out.println("Description:");
+		System.out.print(">");
+		String Description = "'" + scanner.nextLine() + "'";
+		return Description;
+	}
+	private String getExerciseName() {
+		System.out.println("Exercise Name:");
+		System.out.print(">");
+		String Exercise_Name = "'" + scanner.nextLine() + "'";
+		return Exercise_Name;
+	}
+	private String getGroupName() {
+		System.out.println("Group Name:");
+		System.out.print(">");
+		String Group_Name = "'" + scanner.nextLine() + "'";
+		return Group_Name;
+	}
+	private String getWorkoutStart() {
+		System.out.println("Workout Start:");
+		System.out.print(">");
+		String Workout_Start = "'" + scanner.nextLine() + "'";
+		return Workout_Start;
+	}
+	private String getWorkoutEnd() {
+		System.out.println("Workout End:");
+		System.out.print(">");
+		String Workout_End = "'" + scanner.nextLine() + "'";
+		return Workout_End;
+	}
+	private String getRepetitions() {
+		System.out.println("Repetitions:");
+		System.out.print(">");
+		String Repetitions = scanner.nextLine();
+		return Repetitions;
+	}
+	private String getExecutionNr() {
+		System.out.println("Execution Nr");
+		System.out.print(">");
+		String Execution_Nr = scanner.nextLine();
+		return Execution_Nr;
+	}
+	private String getSpecificDate(String date) {
+		System.out.println(date + " Date:");
+		System.out.print(">");
+		String Date = "'" + scanner.nextLine() + "'";
+		return Date;
+	}
+	private String getStrain() {
+		System.out.println("Strain:");
+		System.out.print(">");
+		String Strain = scanner.nextLine();
+		return Strain;
+	}
+	private String getGoal() {
+		System.out.println("Goal:");
+		System.out.print(">");
+		String Goal = scanner.nextLine();
+		return Goal;
+	}
+	private String getTips() {
+		System.out.println("Tips:");
+		System.out.print(">");
+		String Tips = "'" + scanner.nextLine() + "'";
+		return Tips;
+	}
+	private String getPurpose() {
+		System.out.println("Purpose:");
+		System.out.print(">");
+		String Purpose = "'" + scanner.nextLine() + "'";
+		return Purpose;
+	}
+	private String getClimate() {
+		System.out.println("Climate:");
+		System.out.print(">");
+		String Climate = "'" + scanner.nextLine() + "'";
+		return Climate;
+	}
+	private String getTemplateId() {
+		System.out.println("Template Id:");
+		System.out.print(">");
+		String Template_Id = scanner.nextLine();
+		return Template_Id;
+	}
+	private String getPerformance() {
+		System.out.println("Performance:");
+		System.out.print(">");
+		String Performance = scanner.nextLine();
+		return Performance;
+	}
+	private String getShape() {
+		System.out.println("Shape:");
+		System.out.print(">");
+		String Shape = scanner.nextLine();
+		return Shape;
+	}
+	private String getTemplateName() {
+		System.out.println("Template Name:");
+		System.out.print("> ");
+		String Template_Name = "'" + scanner.nextLine() + "'";
+		return Template_Name;
+	}
+	private String getPulse() {
+		System.out.println("Pulse:");
+		System.out.print(">");
+		String Pulse = scanner.nextLine();
+		return Pulse;
+	}
+	private String getCoordinates() {
+		System.out.println("Coordinates:");
+		System.out.print(">");
+		String Coordinates = "'" + scanner.nextLine() + "'";
+		return Coordinates;
+	}
+	private String getGpsTime() {
+		System.out.println("Gps Time:");
+		System.out.print(">");
+		String Gps_Time = "'" + scanner.nextLine() + "'";
+		return Gps_Time;
+	}
+//TODO END GET FROM USER
+//TODO PRINT
+	public void printExercises() throws SQLException{
 		myStmt = myConn.createStatement();
 		
 		ResultSet myRs = myStmt.executeQuery("select * from Exercise");
@@ -148,230 +281,103 @@ public class Driver {
 		while(myRs.next()){
 			System.out.println(myRs.getString("Exercise_Name") + ": " + myRs.getString("Description"));
 		}
-	}
-	
-//WORKOUT
-	public String createNote() throws SQLException{
-		System.out.println("Create Note");
-		
-		System.out.println("Workout Start:");
-		System.out.println(">");
-		String Workout_Start = scanner.nextLine();
-		System.out.println("Purpose:");
-		System.out.println(">");
-		String Purpose = scanner.nextLine();
-		System.out.println("Tips:");
-		System.out.println(">");
-		String Tips = scanner.nextLine();
-		
-		return "INSERT INTO Note (Note_Id,Workout_Start,Purpose,Tips)" +
-		"VALUES (" + Workout_Start + "," + Purpose + "," + Tips +")";
-	}
-	public String createWorkout(){
-		System.out.println("Create Workout");
-		System.out.println("Workout Start:");
-		System.out.println(">");
-		String Workout_Start = scanner.nextLine();
-		System.out.println("Workout End:");
-		System.out.println(">");
-		String Workout_End = scanner.nextLine();
-		System.out.println("Shape:");
-		System.out.println(">");
-		String Shape = scanner.nextLine();
-		System.out.println("Performance:");
-		System.out.println(">");
-		String Performance = scanner.nextLine();
-		System.out.println("Template Id:");
-		System.out.println(">");
-		String Template_Id = scanner.nextLine();
-		System.out.println("Climate:");
-		System.out.println(">");
-		String Climate = scanner.nextLine();
-		
-		return "INSERT INTO Workout (Workout_Start,Workout_End,Shape,Performance,Template_Id,Climate)" +
-		"VALUES (" + Workout_Start + "," + Workout_End + "," + Shape+ "," + Performance +
-		Template_Id + "," + Climate + ")";
-	}
-	
-	public void printWorkout(String Workout_Start){
+	}	
+	public void printWorkout(String Workout_Start) throws SQLException{
 		myStmt = myConn.createStatement();
 		
-		ResultSet myRs = myStmt.executeQuery("select * from " + Workout "where Workout."
-				Workout_Start " = " Workout_Start);
-		System.out.println("Workout_Start, Workout_End, Shape, Performance, Template_Id, Climate"
-		System.out.println(myRs.getString("Workout_Start") + "," + myRs.getString("Workout_End") + 
+		ResultSet myRs = myStmt.executeQuery("select * from Workout where Workout.Workout_Start = " +  Workout_Start);
+		System.out.println("Workout_Start, Workout_End, Shape, Performance, Template_Id, Climate");
+		myRs.next();
+		System.out.println( myRs.getString("Workout_Start") + "," + myRs.getString("Workout_End") + 
 		"," + myRs.getString("Shape") + "," + myRs.getString("Performance") + 
-		"," + myRs.getString("Template_Id") + "," + myRs.getString("Climate"));
+		"," + myRs.getString("Template_Id") + "," + myRs.getString("Climate") );
 		
-		myRs = myStmt.executeQuery("select Exercise_Name,Description from " + Workout_Start + "join Workout_Contains "
-				+ "on Workout." + Workout_Start + " = Workout_Contains." + Workout_Start);
+		myRs = myStmt.executeQuery("select Exercise_Name,Description from Workout join Workout_Contains on "
+				+ "Workout.Workout_Start = Workout_Contains.Workout_Start " + 
+				"where Workout.Workout_Start = " + Workout_Start);
 		System.out.println("Exercises:");
 		while(myRs.next()){
-			System.out.println(myRs.getString("Exercise_Name") + ": " + myRs.getString("Description"));
+			System.out.println( myRs.getString("Exercise_Name") + ": " + myRs.getString("Description") );
 		}
 		
 	}
-	
-	public String createWorkoutContains(){
-		System.out.println("Insert Exercise into Workout");
-		System.out.println("Exercise name:");
-		System.out.println(">");
-		String Exercise_Name = scanner.nextLine();
-		System.out.println("Workout start:");
-		System.out.println(">");
-		String Workout_Start = scanner.nextLine();
-		
-		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start)" +
-		"VALUES (" + Exercise_Name + "," + Workout_Start +")";
-	}
-//TEMPLATE
-	public String createTemplate() throws SQLException{
-		System.out.println("Create Template");
-		System.out.println("Template Name:");
-		System.out.println(">");
-		String Template_Name = scanner.nextLine();
-		
-		return "INSERT INTO Template (Template_Name)" +
-		"VALUES (" + Template_Name + ")";
-	}
-	public String addToTemplate(){
-		System.out.println("Add To Template");
-		System.out.println("Exercise Name:");
-		System.out.println(">");
-		String Exercise_Name = scanner.nextLine();
-		System.out.println("Template Id:");
-		System.out.println(">");
-		String Template_Id = scanner.nextLine();
-		
-		return "INSERT INTO Template_Contains (Exercise_Name,Template_Id)" +
-		"VALUES (" + Exercise_Name + "," + Template_Id + ")";
-	}
-	
-//GPS
-	public String createGps(){
-		System.out.println("Create Gps result");
-		System.out.println("Gps Time:");
-		System.out.println(">");
-		String Gps_Time = scanner.nextLine();
-		System.out.println("Coordinates:");
-		System.out.println(">");
-		String Coordinates = scanner.nextLine();
-		System.out.println("Pulse:");
-		System.out.println(">");
-		String Pulse = scanner.nextLine();
-		
-		return "INSERT INTO Gps (Gps_Time,Coordinates,Pulse)" +
-		"VALUES (" + Gps_Time + "," + Coordinates + "," + Pulse + ")";
-	}
-	public String createGps_Link(){
-		System.out.println("Add To Gps");
-		System.out.println("Gps Time:");
-		System.out.println(">");
-		String Gps_Time = scanner.nextLine();
-		System.out.println("Workout Start:");
-		System.out.println(">");
-		String Workout_Start = scanner.nextLine();
-		return "INSERT INTO Template (Gps_Time,Workout_Start)" +
-		"VALUES (" + Gps_Time + "," + Workout_Start +")";
-	}
-	
-	public void getResults(String Exercise_Name){
-		
-		ResultSet results = myConn.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name);
+//TODO END PRINT
+//TODO GET RESULT/GOAL INFORMATION
+	public void getResults(String Exercise_Name) throws SQLException{
+		ResultSet results = myStmt.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name);
 		System.out.println("Results for " + Exercise_Name);
 		while(results.next()){
 			System.out.println(results.getString("Res_Date") + "," +results.getString("Strain") + "," + results.getString("Unit") + "," + results.getString("Repetitions"));
 		}	
 	}
 	
-	public int getGoal(String Exercise_Name){
-		ResultSet goal = myConn.executeQuery("SELECT Goal FROM Goal Where Exercise_Name = " + Exercise_Name);
+	public Integer getGoal(String Exercise_Name) throws SQLException{
+		ResultSet goal = myStmt.executeQuery("SELECT Goal FROM Goal Where Exercise_Name = " + Exercise_Name);
 		return goal.getInt("Goal");
 	}
-	
-	public void getBestResult(String Exercise_Name){
+	public void getBestResult(String Exercise_Name) throws SQLException{
 		
 		//NOTE! Might crash at the MAX(a*b).
-		ResultSet best = myConn.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name + " AND MAX(Strain*Repetitions");
-		int strain = best.getInt("Strain");
-		int reps = best.getInt("Repetitions");
+		ResultSet best = myStmt.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name + " AND MAX(Strain*Repetitions");
+		Integer strain = best.getInt("Strain");
+		Integer reps = best.getInt("Repetitions");
 		String unit = best.getString("Unit");
-		int total = strain*reps;
+		Integer total = strain*reps;
 		System.out.println("Best result for " + Exercise_Name);
-		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + getGoal(Exercise_Name)-total);
+		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + (getGoal(Exercise_Name)-total));
 	
 }
-	
-	private void workout_creation(){
-		System.out.println("Create Workout");
-		System.out.println("Workout Start:");
-		System.out.println(">");
-		String Workout_Start = scanner.nextLine();
-		System.out.println("Workout End:");
-		System.out.println(">");
-		String Workout_End = scanner.nextLine();
+//TODO END GET RESULT/GOAL INFORMATION
+//TODO NAVIGATION
+	private void workoutCreation() throws SQLException{
+		String Buffer = scanner.nextLine();
 		
-		System.out.println("Shape:");
-		System.out.println(">");
-		String Shape = scanner.nextLine();
-		System.out.println("Performance:");
-		System.out.println(">");
-		String Performance = scanner.nextLine();
+		String returnString = createWorkout();
+		SQLUpdate(returnString);
+		int pos1 = returnString.indexOf("VALUES");
+		int pos2 = returnString.indexOf(",", pos1);
+		String Workout_Start = returnString.substring(pos1 + 8, pos2);
 		
-		System.out.println("Template Id:");
-		System.out.println(">");
-		String Template_Id = scanner.nextLine();
-		System.out.println("Climate:");
-		System.out.println(">");
-		String Climate = scanner.nextLine();
-		
-		String returnString = "INSERT INTO Workout (Workout_Start,Workout_End,Shape,Performance,Template_Id,Climate)" +
-		"VALUES (" + Workout_Start + "," + Workout_End + "," + Shape+ "," + Performance +
-		Template_Id + "," + Climate + "); ";
-			
 			System.out.println("Ynskje du å leggja te ein mal for treninga di? (J/N)");
 			String ans=scanner.next();
 			if(ans.equals("J")||ans.equals("j")){
 				System.out.println("kva for ein mal ynskje du å bruka? ");
-				makemannen(null);
-				System.out.print("> ");
-				num=scanner.nextInt();
-				makemannen(num); //må lages
+				getTemplate(null);
+				System.out.print(">");
+				Integer num=scanner.nextInt();
+				getTemplate(num); //må lages
 				ArrayList<String> exercises=getExercisesFromTemplate(num);
 				for(int i=0;i<exercises.size();i++){
-					createWorkoutContains(Workout_Start,exercises.get(i))
+					SQLQuery(createWorkoutContains(Workout_Start,exercises.get(i)));
 				}
 				boolean go;
-				System.out.println("Ynskje du å leggje te fleire øvingar? (Y/N)");
-				ans=scanner.next();
-				if(ans.contains("J")||ans.contains("j")){
-					go=true;
-				}
-				else if(ans.contains("N")||ans.contains("n")){
-					go=false;
-				}
+				go = yesNo();
 				while(go){
+					printExercises();
 					System.out.println("Kva for ein øving ynskje du å leggja te?");
+					System.out.print(">");
 					ans=scanner.next();
-					System.out.println("Ynskje du å leggje te fleire øvingar? (Y/N)");
-					printExercises(); 
-					System.out.print("> ");
-					ans=scanner.next();
-					returnString+=createWorkoutContains(Workout_start,ans);
-					if(ans.contains("J")||ans.contains("j")){
-						go=true;
-					}
-					else if(ans.contains("N")||ans.contains("n")){
-						go=false;
-					}
+					ans = "'" + ans + "'";
+					SQLUpdate(createWorkoutContains(Workout_Start ,ans));
+					go = yesNo();
 				}
 				System.out.println("Følgende trening er nå oppretta: ");
-				printWorkout(); 
-				return returnString;
-				}
+				printWorkout(Workout_Start);
 			}
-	
-//DELETE
+	private boolean yesNo() {
+		String ans;
+		System.out.println("Ynskje du å leggje te fleire øvingar? (J/N)");
+		System.out.print(">");
+		ans=scanner.next();
+		if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+//TODO END NAVIGATION
+//TODO DELETE
 	private String DeleteExercise(String exercise) throws SQLException{
 		return "delete * from exercise where Exercise_Name="+exercise;
 	}
@@ -390,5 +396,18 @@ public class Driver {
 	private String DeleteGPS(String Gps){
 		return "delete * from GPS where GPS_Time="+Gps;
 	}
+//TODO END DELETE
+//TODO MYSQL QUERY
+	public ResultSet SQLQuery(String statement) throws SQLException{
+		myStmt = myConn.createStatement();
+		ResultSet myRs = myStmt.executeQuery(statement);
+		return myRs;
+	}
+	public Integer SQLUpdate(String statement) throws SQLException{
+		myStmt = myConn.createStatement();
+		Integer myRs = myStmt.executeUpdate(statement);
+		return myRs;
+	}
+//TODO END MYSQL QUERY
 	
 }
