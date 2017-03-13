@@ -15,7 +15,6 @@ public class Driver {
 	}
 	void init(){
 		scanner = new Scanner(System.in);
-		
 	}
 	void run(){
 		try{
@@ -43,11 +42,6 @@ public class Driver {
 		}
 	}
 	
-	public Integer getSize(String table) throws SQLException{
-		ResultSet myRs = myStmt.executeQuery("select count(*) from " + table);
-		return Integer.parseInt(myRs.getString(0)) + 1;
-	}
-	
 	//EXERCISE
 	public String createExercise(){
 		System.out.println("Create Exercise");
@@ -63,7 +57,7 @@ public class Driver {
 		
 		return "INSERT INTO Exercise (Exercise_Name,Description,Climate,Other)" +
 		"VALUES (" + Exercise_Name + "," + Description + "," + Other + ")";
-	}	
+	}
 	public String createExerciseGroup(){
 		System.out.println("Create Exercise Group");
 		System.out.println("Group Name:");
@@ -113,14 +107,12 @@ public class Driver {
 		System.out.println(">");
 		String End_Date = scanner.nextLine();
 		
-		Integer Goal_Id = getSize("Goal");
-		
 		System.out.println("Exercise Name:");
 		System.out.println(">");
 		String Exercise_Name = scanner.nextLine();
 		
-		return "INSERT INTO Goal (Goal,Start_Date,End_Date,Goal_Id,Exercise_Name)" +
-		"VALUES (" + Goal + "," + Start_Date + "," + End_Date + "," + Goal_Id + "," + 
+		return "INSERT INTO Goal (Goal,Start_Date,End_Date,Exercise_Name)" +
+		"VALUES (" + Goal + "," + Start_Date + "," + End_Date + "," + "," + 
 		Exercise_Name + ")";
 	}
 	public String insertExerciseInGroup(){
@@ -139,8 +131,6 @@ public class Driver {
 	public String createNote() throws SQLException{
 		System.out.println("Create Note");
 		
-		Integer Note_Id = getSize("Note");
-		
 		System.out.println("Workout Start:");
 		System.out.println(">");
 		String Workout_Start = scanner.nextLine();
@@ -152,7 +142,7 @@ public class Driver {
 		String Tips = scanner.nextLine();
 		
 		return "INSERT INTO Note (Note_Id,Workout_Start,Purpose,Tips)" +
-		"VALUES (" + Note_Id + "," + Workout_Start + "," + Purpose + "," + Tips +")";
+		"VALUES (" + Workout_Start + "," + Purpose + "," + Tips +")";
 	}
 	public String createWorkout(){
 		System.out.println("Create Workout");
@@ -181,6 +171,25 @@ public class Driver {
 		"VALUES (" + Workout_Start + "," + Workout_End + "," + Shape+ "," + Performance +
 		Template_Id + "," + Climate + ")";
 	}
+	
+	public void printWorkout(String Workout_Start){
+		myStmt = myConn.createStatement();
+		
+		ResultSet myRs = myStmt.executeQuery("select * from " + Workout "where Workout."
+				Workout_Start " = " Workout_Start);
+		System.out.println("Workout_Start, Workout_End, Shape, Performance, Template_Id, Climate"
+		System.out.println(myRs.getString("Workout_Start") + "," + myRs.getString("Workout_End") + 
+		"," + myRs.getString("Shape") + "," + myRs.getString("Performance") + 
+		"," + myRs.getString("Template_Id") + "," + myRs.getString("Climate"));
+		
+		myRs = myStmt.executeQuery("select Exercise_Name,Description from " + Workout_Start + "join Workout_Contains "
+				+ "on Workout." + Workout_Start + " = Workout_Contains." + Workout_Start);
+		System.out.println("Exercises:");
+		while(myRs.next()){
+			System.out.println(myRs.getString("Exercise_Name") + "," + myRs.getString("Description"));
+		}
+	}
+	
 	public String createWorkoutContains(){
 		System.out.println("Insert Exercise into Workout");
 		System.out.println("Exercise name:");
@@ -200,10 +209,8 @@ public class Driver {
 		System.out.println(">");
 		String Template_Name = scanner.nextLine();
 		
-		Integer Template_Id = getSize("Template");
-		
-		return "INSERT INTO Template (Template_Name,Template_Id)" +
-		"VALUES (" + Template_Name + "," + Template_Id +")";
+		return "INSERT INTO Template (Template_Name)" +
+		"VALUES (" + Template_Name + ")";
 	}
 	public String addToTemplate(){
 		System.out.println("Add To Template");
