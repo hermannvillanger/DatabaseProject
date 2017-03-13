@@ -1,0 +1,133 @@
+CREATE TABLE Template(
+	Template_Name	VARCHAR(30),
+	Template_Id		INTEGER NOT NULL,
+	CONSTRAINT Template_PK PRIMARY KEY (Template_Id)
+	);
+    
+CREATE TABLE Workout(
+	Workout_Start	DATETIME NOT NULL,
+	Workout_End		DATETIME NOT NULL,
+	Shape			INTEGER,
+	Performance		INTEGER,
+	Template_Id		INTEGER,
+	Climate			VARCHAR(60),
+	CONSTRAINT Workout_PK PRIMARY KEY (Workout_Start),
+	CONSTRAINT Workout_FK FOREIGN KEY (Template_Id) REFERENCES Template(Template_Id)
+													ON UPDATE SET NULL
+													ON DELETE SET NULL,
+	CONSTRAINT CHECK( Shape BETWEEN 1 AND 10),
+	CONSTRAINT CHECK( Performance BETWEEN 1 AND 10)
+	);
+    
+    CREATE TABLE Note(
+	Note_Id			INTEGER NOT NULL auto_increment,
+	Workout_Start	DATETIME NOT NULL,
+	Purpose			VARCHAR(140),
+	Tips			VARCHAR(140),
+	CONSTRAINT Note_PK PRIMARY KEY (Note_Id),
+	CONSTRAINT Workout_FK1 FOREIGN KEY (Workout_Start) 	REFERENCES Workout(Workout_Start)
+													ON UPDATE CASCADE
+													ON DELETE CASCADE
+	);
+    
+CREATE TABLE Exercise(
+	Exercise_Name	VARCHAR(30),
+	Description		VARCHAR(140),
+	CONSTRAINT Exercise_PK PRIMARY KEY (Exercise_Name)
+	);
+
+CREATE TABLE Workout_Contains(
+	Exercise_Name 	VARCHAR(30) NOT NULL,
+	Workout_Start	DATETIME NOT NULL,
+
+	CONSTRAINT	Workout_Contains_PK		PRIMARY KEY(Exercise_Name,Workout_Start),
+	CONSTRAINT	Workout_Contains_FK1	FOREIGN KEY(Exercise_Name) REFERENCES Exercise(Exercise_Name)
+																				ON UPDATE CASCADE
+																				ON DELETE CASCADE,
+	CONSTRAINT	Workout_Contains_FK2	FOREIGN KEY(Workout_Start) REFERENCES Workout(Workout_Start)
+																				ON UPDATE CASCADE
+																				ON DELETE CASCADE
+	);
+
+CREATE TABLE Exercise_Group(
+	Group_Name		VARCHAR(30),
+	Description		VARCHAR(140),
+	CONSTRAINT Exercise_Group_PK PRIMARY KEY (Group_Name)
+	);
+
+CREATE TABLE Workout_Result(
+	Strain			VARCHAR(30),
+	Res_Date		DATE NOT NULL,
+	Execution_Nr	INTEGER NOT NULL,
+	Repetitions		INTEGER,
+	Exercise_Name	VARCHAR(30) NOT NULL,
+    Workout_Start 	DATETIME NOT NULL,
+
+	CONSTRAINT	Result_PK PRIMARY KEY(Exercise_Name,Execution_Nr,Res_Date),
+	CONSTRAINT	Result_FK1 FOREIGN KEY(Exercise_Name) REFERENCES Exercise(Exercise_Name)
+																ON UPDATE CASCADE
+																ON DELETE CASCADE,
+	CONSTRAINT	Result_FK2 FOREIGN KEY(Workout_Start) REFERENCES Workout(Workout_Start)
+																ON UPDATE CASCADE
+																ON DELETE CASCADE
+	);
+
+CREATE TABLE Gps(
+	Gps_Time		DATETIME,
+	Coordinates		VARCHAR(30),
+	Pulse			INTEGER,
+	CONSTRAINT Gps_PK PRIMARY KEY(Gps_Time)
+	);
+    
+CREATE TABLE Gps_Link(
+	Gps_Time		DATETIME,
+	Workout_Start	DATETIME,
+	
+	CONSTRAINT	Gps_Link_PK		PRIMARY KEY(Workout_Start,Gps_Time),
+	CONSTRAINT	Gps_Link_FK1	FOREIGN KEY(Workout_Start)	REFERENCES	Workout(Workout_Start)
+																		ON UPDATE	CASCADE
+																		ON DELETE	CASCADE,
+	CONSTRAINT	Gps_Link_FK2	FOREIGN KEY(Gps_Time)		REFERENCES	Gps(Gps_Time)
+																		ON UPDATE	CASCADE
+																		ON DELETE	CASCADE,
+	CONSTRAINT CHECK( Gps_Time > Workout_Start)					
+);
+
+CREATE TABLE Goal(
+	Goal			VARCHAR(140),
+	Start_Date		DATE,
+	End_Date		DATE,
+	Goal_Id			INTEGER NOT NULL auto_increment,
+	Exercise_Name	VARCHAR(30) NOT NULL,
+
+	CONSTRAINT	Goal_PK PRIMARY KEY(Goal_Id),
+	CONSTRAINT	Goal_FK FOREIGN KEY(Exercise_Name) REFERENCES Exercise(Exercise_Name)
+																ON UPDATE CASCADE
+																ON DELETE CASCADE
+	);
+
+CREATE TABLE Template_Contains(
+	Exercise_Name 	VARCHAR(30) NOT NULL,
+	Template_Id		INTEGER NOT NULL auto_increment,
+
+	CONSTRAINT	Template_Contains_PK	PRIMARY KEY(Exercise_Name,Template_Id),
+	CONSTRAINT	Template_Contains_FK1	FOREIGN KEY(Exercise_Name) REFERENCES Exercise(Exercise_Name)
+																				ON UPDATE CASCADE
+																				ON DELETE CASCADE,
+	CONSTRAINT	Template_Contains_FK2	FOREIGN KEY(Template_Id) REFERENCES Template(Template_Id)
+																				ON UPDATE CASCADE
+																				ON DELETE CASCADE
+	);
+
+CREATE TABLE Exercise_In_Group(
+	Exercise_Name	VARCHAR(30)	NOT NULL,
+	Group_Name		VARCHAR(30)	NOT NULL,
+
+	CONSTRAINT	Exercise_In_Group_PK	PRIMARY KEY(Group_Name,Exercise_Name),
+	CONSTRAINT	Exercise_In_Group_FK1	FOREIGN KEY(Exercise_Name) REFERENCES Exercise(Exercise_Name)
+																				ON UPDATE CASCADE
+																				ON DELETE CASCADE,
+	CONSTRAINT	Exercise_In_Group_FK2	FOREIGN KEY(Group_Name) 	REFERENCES Exercise_Group(Group_Name)
+																				ON UPDATE CASCADE
+																				ON DELETE CASCADE
+	);
