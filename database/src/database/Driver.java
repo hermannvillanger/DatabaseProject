@@ -248,6 +248,32 @@ public class Driver {
 		"VALUES (" + Gps_Time + "," + Workout_Start +")";
 	}
 	
+	public void getResults(String Exercise_Name){
+		
+		ResultSet results = myConn.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name);
+		System.out.println("Results for " + Exercise_Name);
+		while(results.next()){
+			System.out.println(results.getString("Res_Date") + "," +results.getString("Strain") + "," + results.getString("Unit") + "," + results.getString("Repetitions"));
+		}	
+	}
+	
+	public int getGoal(String Exercise_Name){
+		ResultSet goal = myConn.executeQuery("SELECT Goal FROM Goal Where Exercise_Name = " + Exercise_Name);
+		return goal.getInt("Goal");
+	}
+	
+	public void getBestResult(String Exercise_Name){
+		
+		
+		//NOTE! Might crash at the MAX(a*b).
+		ResultSet best = myConn.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name + " AND MAX(Strain*Repetitions");
+		int strain = best.getInt("Strain");
+		int reps = best.getInt("Repetitions");
+		String unit = best.getString("Unit");
+		int total = strain*reps;
+		System.out.println("Best result for " + Exercise_Name);
+		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + getGoal(Exercise_Name)-total);
+	
 }
 //DELETE
 	
