@@ -42,7 +42,7 @@ public class Driver {
 		}
 	}
 	
-	//EXERCISE
+//EXERCISE
 	public String createExercise(){
 		System.out.println("Create Exercise");
 		System.out.println("Exercise Name:");
@@ -127,7 +127,7 @@ public class Driver {
 		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name)" +
 		"VALUES (" + Exercise_Name + "," + Group_Name + ")";
 	}
-	//WORKOUT
+//WORKOUT
 	public String createNote() throws SQLException{
 		System.out.println("Create Note");
 		
@@ -203,7 +203,7 @@ public class Driver {
 		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start)" +
 		"VALUES (" + Exercise_Name + "," + Workout_Start +")";
 	}
-	//TEMPLATE
+//TEMPLATE
 	public String createTemplate() throws SQLException{
 		System.out.println("Create Template");
 		System.out.println("Template Name:");
@@ -225,7 +225,7 @@ public class Driver {
 		return "INSERT INTO Template_Contains (Exercise_Name,Template_Id)" +
 		"VALUES (" + Exercise_Name + "," + Template_Id + ")";
 	}
-	//GPS
+//GPS
 	public String createGps(){
 		System.out.println("Create Gps result");
 		System.out.println("Gps Time:");
@@ -281,7 +281,6 @@ public class Driver {
 	
 }
 //DELETE
-	
 	private String DeleteExercise(String exercise) throws SQLException{
 		return "delete * from exercise where Exercise_Name="+exercise;
 	}
