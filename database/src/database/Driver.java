@@ -17,7 +17,6 @@ public class Driver {
 		scanner = new Scanner(System.in);
 	}
 	void run(){
-<<<<<<< HEAD
  		try{
  			// 1. Get a connection to database
  			myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projectdatabase?autoReconnect=true&useSSL=false","project","project");
@@ -55,33 +54,6 @@ public class Driver {
  			exc.printStackTrace();
  		}
  	}
-=======
-		try{
-			// 1. Get a connection to database
-			myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projectdatabase?autoReconnect=true&useSSL=false","project","project");
-			
-			boolean makeChanges = true;
-			while(makeChanges){
-				// 2. Create a statement
-				myStmt = myConn.createStatement();
-				// 3. Execute SQL query
-				
-				//Still spørsmål
-				
-				ResultSet myRs = myStmt.executeQuery("select * from exercise");
-				// 4. Process the result set
-				while(myRs.next()){
-					System.out.println(myRs.getString("exercise_name") + "," + myRs.getString("description"));
-				}	
-				makeChanges = false;
-			}
-		}
-		catch(Exception exc){
-			exc.printStackTrace();
-		}
-	}
-	
->>>>>>> refs/remotes/origin/masterJunior
 //EXERCISE
 	public String createExercise(){
 		System.out.println("Create Exercise");
@@ -329,7 +301,6 @@ public class Driver {
 		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + getGoal(Exercise_Name)-total);
 	
 }
-<<<<<<< HEAD
 	
 	private void workout_creation(){
 		System.out.println("Create Workout");
@@ -400,8 +371,6 @@ public class Driver {
 				}
 			}
 	
-=======
->>>>>>> refs/remotes/origin/masterJunior
 //DELETE
 	private String DeleteExercise(String exercise) throws SQLException{
 		return "delete * from exercise where Exercise_Name="+exercise;
