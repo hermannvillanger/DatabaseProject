@@ -127,6 +127,17 @@ public class Driver {
 		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name)" +
 		"VALUES (" + Exercise_Name + "," + Group_Name + ")";
 	}
+	
+	public void printExercises(){
+		myStmt = myConn.createStatement();
+		
+		ResultSet myRs = myStmt.executeQuery("select * from Exercise");
+		System.out.println("Exercises:");
+		while(myRs.next()){
+			System.out.println(myRs.getString("Exercise_Name") + ": " + myRs.getString("Description"));
+		}
+	}
+	
 //WORKOUT
 	public String createNote() throws SQLException{
 		System.out.println("Create Note");
@@ -223,6 +234,7 @@ public class Driver {
 		return "INSERT INTO Template_Contains (Exercise_Name,Template_Id)" +
 		"VALUES (" + Exercise_Name + "," + Template_Id + ")";
 	}
+	
 //GPS
 	public String createGps(){
 		System.out.println("Create Gps result");
