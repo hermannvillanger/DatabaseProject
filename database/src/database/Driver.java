@@ -15,6 +15,13 @@ public class Driver {
 		}
 		void init(){
 			scanner = new Scanner(System.in);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+			//something
+=======
+>>>>>>> refs/remotes/origin/master
+>>>>>>> origin/masterJunior
 			
 		}
 		void run(){
