@@ -8,9 +8,6 @@ public class Driver {
 	Connection myConn; 
 	Statement myStmt;
 	
-//Test push fra Hermann
-	//Hei Hermann
-	
 	public static void main(String[] args) {
 		Driver driver = new Driver();
 		driver.init();
