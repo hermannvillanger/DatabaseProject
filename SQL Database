@@ -59,7 +59,7 @@ CREATE TABLE Workout_Result(
 	Strain			VARCHAR(30),
 	Res_Date		DATE NOT NULL,
 	Execution_Nr	INTEGER NOT NULL,
-	Repetitions		INTEGER,
+	Repetitions		INTEGER NOT NULL,
 	Exercise_Name	VARCHAR(30) NOT NULL,
     Workout_Start 	DATETIME NOT NULL,
 
