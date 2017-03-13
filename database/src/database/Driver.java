@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class Driver {
+	\\test
 	static Scanner scanner;
 	static Connection myConn; 
 	private String DeleteExercise(String exercise) throws SQLException{
