@@ -8,6 +8,8 @@ public class Driver {
 	Connection myConn; 
 	Statement myStmt;
 	
+//Test push fra Hermann
+	
 	public static void main(String[] args) {
 		Driver driver = new Driver();
 		driver.init();
@@ -16,21 +18,11 @@ public class Driver {
 	void init(){
 		scanner = new Scanner(System.in);
 		
-<<<<<<< HEAD
-		public static void main(String[] args) {
-			Driver driver = new Driver();
-			driver.init();
-			driver.run();
-		}
-		void init(){
-			scanner = new Scanner(System.in);
-=======
 	}
 	void run(){
 		try{
 			// 1. Get a connection to database
 			myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projectdatabase?autoReconnect=true&useSSL=false","project","project");
->>>>>>> origin/masterJunior
 			
 			boolean makeChanges = true;
 			while(makeChanges){
