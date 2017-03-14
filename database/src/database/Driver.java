@@ -25,15 +25,15 @@ public class Driver {
  			boolean makeChanges = true;
  			while(makeChanges){
  				System.out.println("What do you want to do?");
- 				System.out.println("1: Create template");
- 				System.out.println("2: Create exercise");
- 				System.out.println("3: Create workout");
+ 				System.out.println("1: Create Template");
+ 				System.out.println("2: Create Exercise");
+ 				System.out.println("3: Create Workout");
  				Integer num=scanner.nextInt();
  				switch (num){
- 				case 1: template_creation();
-				break;
- 				case 2: exercise_creation();
- 				break;
+// 				case 1: template_creation();
+//				break;
+// 				case 2: exercise_creation();
+// 				break;
  				case 3: workoutCreation();
  				break;
  				}
@@ -170,15 +170,23 @@ public class Driver {
 		return Group_Name;
 	}
 	private String getWorkoutStart() {
-		System.out.println("Workout Start:");
+		System.out.println("Workout Start, Date: 'YYYY-MM-DD' :");
 		System.out.print(">");
-		String Workout_Start = "'" + scanner.nextLine() + "'";
+		String Date = scanner.nextLine();
+		System.out.println("Workout Start, Time: 'HH:MM:SS' :");
+		System.out.print(">");
+		String Time = scanner.nextLine();
+		String Workout_Start = "'" + Date + " " + Time + "'";
 		return Workout_Start;
 	}
 	private String getWorkoutEnd() {
-		System.out.println("Workout End:");
+		System.out.println("Workout End, Date: 'YYYY-MM-DD' :");
 		System.out.print(">");
-		String Workout_End = "'" + scanner.nextLine() + "'";
+		String Date = scanner.nextLine();
+		System.out.println("Workout End, Time: 'HH:MM:SS' :");
+		System.out.print(">");
+		String Time = scanner.nextLine();
+		String Workout_End = "'" + Date + " " + Time + "'";
 		return Workout_End;
 	}
 	private String getRepetitions() {
@@ -342,13 +350,13 @@ public class Driver {
 			String ans=scanner.next();
 			if(ans.equals("J")||ans.equals("j")){
 				System.out.println("kva for ein mal ynskje du å bruka? ");
-				getTemplate(null);
+//				getTemplate(null);
 				System.out.print(">");
 				Integer num=scanner.nextInt();
-				getTemplate(num); //må lages
-				ArrayList<String> exercises=getExercisesFromTemplate(num);
-				for(int i=0;i<exercises.size();i++){
-					SQLQuery(createWorkoutContains(Workout_Start,exercises.get(i)));
+//				getTemplate(num); //må lages
+//				ArrayList<String> exercises=getExercisesFromTemplate(num);
+//				for(int i=0;i<exercises.size();i++){
+//					SQLQuery(createWorkoutContains(Workout_Start,exercises.get(i)));
 				}
 				boolean go;
 				go = yesNo();
@@ -378,23 +386,23 @@ public class Driver {
 	}
 //TODO END NAVIGATION
 //TODO DELETE
-	private String DeleteExercise(String exercise) throws SQLException{
-		return "delete * from exercise where Exercise_Name="+exercise;
+	private String DeleteExercise(String Exercise_Name) throws SQLException{
+		return "delete * from exercise where Exercise_Name = " + Exercise_Name;
 	}
-	private String DeleteWorkout(String workout_start) throws SQLException{
-		return "delete * from Workout where Workout_Start=" + workout_start;
+	private String DeleteWorkout(String Workout_Start) throws SQLException{
+		return "delete * from Workout where Workout_Start = " + Workout_Start;
 	}
-	private String DeleteTemplate(String template_id) throws SQLException{
-		return "delete * from Template where Template_Id=" + template_id;
+	private String DeleteTemplate(String Template_Id) throws SQLException{
+		return "delete * from Template where Template_Id = " + Template_Id;
 	}
-	private String DeleteNote(String note)throws SQLException{
-		return "delete * from Note where Note_Id="+note;
+	private String DeleteNote(String Note_Id)throws SQLException{
+		return "delete * from Note where Note_Id = " + Note_Id;
 	}
 	private String DeleteGoal(String goal) throws SQLException{
-		return "delete * from Goal where Goal_Id=" + goal;
+		return "delete * from Goal where Goal_Id = " + goal;
 	}
-	private String DeleteGPS(String Gps){
-		return "delete * from GPS where GPS_Time="+Gps;
+	private String DeleteGPS(String Gps_Time){
+		return "delete * from GPS where GPS_Time = " + Gps_Time;
 	}
 //TODO END DELETE
 //TODO MYSQL QUERY
