@@ -51,7 +51,7 @@ public class Driver {
 		String Description = getDescription();
 		
 		return "INSERT INTO Exercise (Exercise_Name,Description) " +
-		"VALUES (" + Exercise_Name + "," + Description + ")";
+		"\nVALUES (" + Exercise_Name + "," + Description + ")";
 	}
 	public String createExerciseGroup(){
 		System.out.println("Create Exercise Group");
@@ -59,7 +59,7 @@ public class Driver {
 		String Description = getDescription();
 		
 		return "INSERT INTO Workout_Contains (Group_Name,Description) " +
-		"VALUES (" + Group_Name + "," + Description +")";
+		"\nVALUES (" + Group_Name + "," + Description +")";
 	}
 	public String createExerciseResult(){
 		System.out.println("Exercise Result");
@@ -71,7 +71,7 @@ public class Driver {
 		String Workout_Start = getWorkoutStart();
 		
 		return "INSERT INTO Workout_Result (Strain,Res_Date,Execution_Nr,Repetitions,Exercise_Name,Workout_Start) " +
-		"VALUES (" + Strain + "," + Res_Date + "," + Execution_Nr + "," + Repetitions + "," + 
+		"\nVALUES (" + Strain + "," + Res_Date + "," + Execution_Nr + "," + Repetitions + "," + 
 		Exercise_Name + "," + Workout_Start +")";
 	}
 	public String createGoal(){
@@ -90,7 +90,7 @@ public class Driver {
 		String Group_Name = getGroupName();
 		
 		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name) " +
-		"VALUES (" + Exercise_Name + "," + Group_Name + ")";
+		"\nVALUES (" + Exercise_Name + "," + Group_Name + ")";
 	}
 	public String createNote(){
 		System.out.println("Create Note");
@@ -99,7 +99,7 @@ public class Driver {
 		String Tips = getTips();
 		
 		return "INSERT INTO Note (Workout_Start,Purpose,Tips) " +
-		"VALUES (" + Workout_Start + "," + Purpose + "," + Tips +")";
+		"\nVALUES (" + Workout_Start + "," + Purpose + "," + Tips +")";
 	}
 	public String createWorkout(){
 		System.out.println("Create Workout");
@@ -110,28 +110,28 @@ public class Driver {
 		String Template_Id = getTemplateId();
 		String Climate = getClimate();
 		
-		return "INSERT INTO Workout (Workout_Start,Workout_End,Shape,Performance,Template_Id,Climate)" +
-		"VALUES (" + Workout_Start + "," + Workout_End + "," + Shape+ "," + Performance +
+		return "INSERT INTO Workout (Workout_Start,Workout_End,Shape,Performance,Template_Id,Climate) " +
+		"\nVALUES (" + Workout_Start + "," + Workout_End + "," + Shape + "," + Performance + "," +
 		Template_Id + "," + Climate + ")";
 	}
 	public String createWorkoutContains(String Workout_Start,String Exercise_Name){		
-		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start)" +
-		"VALUES (" + Exercise_Name + "," + Workout_Start +")";
+		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start) " +
+		"\nVALUES (" + Exercise_Name + "," + Workout_Start +")";
 	}
 	public String createTemplate(){
 		System.out.println("Create Template");
 		String Template_Name = getTemplateName();
 		
-		return "INSERT INTO Template (Template_Name)" +
-		"VALUES (" + Template_Name + ")";
+		return "INSERT INTO Template (Template_Name) " +
+		"\nVALUES (" + Template_Name + ")";
 	}
 	public String addToTemplate(){
 		System.out.println("Add Exercise To Template");
 		String Exercise_Name = getExerciseName();
 		String Template_Id = getTemplateId();
 		
-		return "INSERT INTO Template_Contains (Exercise_Name,Template_Id)" +
-		"VALUES (" + Exercise_Name + "," + Template_Id + ")";
+		return "INSERT INTO Template_Contains (Exercise_Name,Template_Id) " +
+		"\nVALUES (" + Exercise_Name + "," + Template_Id + ")";
 	}
 	public String createGps(){
 		System.out.println("Create Gps result");
@@ -139,15 +139,15 @@ public class Driver {
 		String Coordinates = getCoordinates();
 		String Pulse = getPulse();
 		
-		return "INSERT INTO Gps (Gps_Time,Coordinates,Pulse)" +
-		"VALUES (" + Gps_Time + "," + Coordinates + "," + Pulse + ")";
+		return "INSERT INTO Gps (Gps_Time,Coordinates,Pulse) " +
+		"\nVALUES (" + Gps_Time + "," + Coordinates + "," + Pulse + ")";
 	}
 	public String createGps_Link(){
 		System.out.println("Add To Gps");
 		String Gps_Time = getGpsTime();
 		String Workout_Start = getWorkoutStart();
-		return "INSERT INTO Template (Gps_Time,Workout_Start)" +
-		"VALUES (" + Gps_Time + "," + Workout_Start +")";
+		return "INSERT INTO Template (Gps_Time,Workout_Start) " +
+		"\nVALUES (" + Gps_Time + "," + Workout_Start +")";
 	}
 //TODO END CREATE TABLE
 //TODO GET FROM USER
@@ -279,6 +279,14 @@ public class Driver {
 		String Gps_Time = "'" + scanner.nextLine() + "'";
 		return Gps_Time;
 	}
+//TODO TIL MULIG FORENKLING AV KODEN
+//	private String getWhat(String What) {
+//		System.out.println(What + ":");
+//		System.out.print(">");
+//		What = "'" + scanner.nextLine() + "'";
+//		return What;
+//	}
+	
 //TODO END GET FROM USER
 //TODO PRINT
 	public void printExercises() throws SQLException{
@@ -299,10 +307,11 @@ public class Driver {
 		System.out.println( myRs.getString("Workout_Start") + "," + myRs.getString("Workout_End") + 
 		"," + myRs.getString("Shape") + "," + myRs.getString("Performance") + 
 		"," + myRs.getString("Template_Id") + "," + myRs.getString("Climate") );
-		
-		myRs = myStmt.executeQuery("select Exercise_Name,Description from Workout join Workout_Contains on "
-				+ "Workout.Workout_Start = Workout_Contains.Workout_Start " + 
-				"where Workout.Workout_Start = " + Workout_Start);
+		String query = "select exercise.Exercise_Name,Description "
+				+ "from Workout Join Workout_Contains on Workout.Workout_Start = Workout_Contains.Workout_Start "
+				+ " Join Exercise on Exercise.Exercise_Name = Workout_Contains.Exercise_Name "+
+				"where Workout.Workout_Start =" +  Workout_Start;
+		myRs = myStmt.executeQuery(query);
 		System.out.println("Exercises:");
 		while(myRs.next()){
 			System.out.println( myRs.getString("Exercise_Name") + ": " + myRs.getString("Description") );
