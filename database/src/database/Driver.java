@@ -433,7 +433,7 @@ public class Driver {
 					SQLQuery(createWorkoutContains(Workout_Start,exercises.get(i)));
 */				}
 				boolean go;
-				go = yesNo();
+				go = yesNo("Workouts");
 				while(go){
 					printExercises();
 					System.out.println("Kva for ein øving ynskje du å leggja te?");
@@ -441,7 +441,7 @@ public class Driver {
 					ans=scanner.nextLine();
 					ans = "'" + ans + "'";
 					SQLUpdate(createWorkoutContains(Workout_Start ,ans));
-					go = yesNo();
+					go = yesNo("Workouts");
 				}
 				System.out.println("Følgende trening er nå oppretta: ");
 				printWorkout(Workout_Start);
@@ -479,14 +479,14 @@ public class Driver {
 					String Group_Name = newGroup.substring(pos1 + 8, pos2);
 					groups.add(Group_Name);
 					System.out.println("You have added " + ans + " into the new group " + Group_Name);
-					addGroups = yesNo("Exercise Groups");
+					addGroups = yesNo("Exercise Groups to " + ans);
 				}else{
 					groupAns = "'" + groupAns + "'";
 					ResultSet exists = SQLQuery("SELECT Group_Name FROM Exercise_Group WHERE Group_Name = "+ groupAns);
 					if(exists.first()){
 						groups.add(groupAns);
 						System.out.println("You have added " + ans + " into the Exercise Group " + groupAns );
-						addGroups = yesNo("Exercise Groups");
+						addGroups = yesNo("Exercise Groups to "+ans);
 					}else{
 						System.out.println("This Exercise Group does not exist, make sure you look for typos. Add new Group by writing 'new'");
 					}
@@ -503,21 +503,10 @@ public class Driver {
 		}
 		
 	}
-	private boolean yesNo() {
-		String ans;
-		System.out.println("Ynskje du å leggje te fleire øvingar? (J/N)");
-		System.out.print(">");
-		ans=scanner.nextLine();
-		if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
+
 	private boolean yesNo(String What) {
 		String ans;
-		System.out.println("Do you add more " + What + "? (J/N)");
+		System.out.println("Do you wish to add more " + What + "? (Y/N)");
 		System.out.print(">");
 		ans=scanner.nextLine();
 		if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
