@@ -29,7 +29,7 @@ public class Driver {
  				System.out.println("2: Create Exercise");
  				System.out.println("3: Create Workout");
  				System.out.println("4: Add a result to your workout");
- 				System.out.println("5: Register Finished Workout");
+ 				System.out.println("6: Register Finished Workout");
 
  				System.out.println("10: Exit");
  				Integer num=scanner.nextInt();
@@ -42,7 +42,7 @@ public class Driver {
  				break;
  				case 4: addResult();
  				break;
- 				case 5: finishedWorkout();
+ 				case 6: finishedWorkout();
  				break;
  				case 10: makeChanges = false;
  				break;
@@ -74,14 +74,13 @@ public class Driver {
 		return "INSERT INTO Exercise_Group (Group_Name,Description) " +
 		"\nVALUES (" + Group_Name + "," + Description +")";
 	}
-	public String createExerciseResult(String exercise,String workout) throws SQLException{
+	public String createExerciseResult(String exercise_name,String workout_start) throws SQLException{
 		System.out.println("Exercise Result");
-		int Strain = getStrain();
-		int Execution_Nr = getExecutionNr(exercise,workout)+1;
-		int Repetitions = getRepetitions();
+		Integer Strain = Integer.valueOf(getStrain());
+		Integer Repetitions = Integer.valueOf(getRepetitions());
 		
-		return "INSERT INTO Workout_Result (Strain,Execution_Nr,Repetitions,Exercise_Name,Workout_Start) " +
-		"\nVALUES (" + Strain + "," + Execution_Nr + "," + Repetitions + "," + exercise + "," + workout + ")";
+		return "INSERT INTO Workout_Result (Strain,Repetitions,Exercise_Name,Workout_Start) " +
+		"\nVALUES (" + Strain + "," + Repetitions + "," + exercise_name + "," + workout_start + ")";
 	}
 	public String createGoal(){
 		System.out.println("Create Goal");
@@ -117,30 +116,26 @@ public class Driver {
 		"\nVALUES (" + Workout_Start + "," + Purpose + "," + Tips +")";
 	}
 	public String createWorkout(){
+		scanner.nextLine();
 		System.out.println("Create Workout");
 		String Workout_Start = getWorkoutStart();
 		String Workout_End = getWorkoutEnd();
-		String Template_Id = getTemplateId();
 		
-		return "INSERT INTO Workout (Workout_Start,Workout_End,Template_Id) " +
-		"\nVALUES (" + Workout_Start + "," + Workout_End + ","  +
-		Template_Id + ")";
+		return "INSERT INTO Workout (Workout_Start,Workout_End) " +
+		"\nVALUES (" + Workout_Start + "," + Workout_End + ")";
 	}
 	public String createWorkoutContains(String Workout_Start,String Exercise_Name){		
 		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start) " +
 		"\nVALUES (" + Exercise_Name + "," + Workout_Start +")";
 	}
-
 	public String createTemplate(String Template_Name){
 		return "INSERT INTO Template (Template_Name) " +
 		"\nVALUES (" + Template_Name + ")";
 	}
-    
 	public String addToTemplate(int Template_Id,String Exercise_Name){
 		return "INSERT INTO Template_Contains (Exercise_Name,Template_Id) " +
 		"\nVALUES (" + Exercise_Name + "," + Template_Id + ")";
 	}
-    
 	public String createGps(){
 		System.out.println("Create Gps result");
 		String Gps_Time = getGpsTime();
@@ -149,7 +144,6 @@ public class Driver {
 		return "INSERT INTO Gps (Gps_Time,Coordinates,Pulse) " +
 		"\nVALUES (" + Gps_Time + "," + Coordinates + "," + Pulse + ")";
 	}
-    
 	public String createGps_Link(){
 		System.out.println("Add To Gps");
 		String Gps_Time = getGpsTime();
@@ -203,12 +197,6 @@ public class Driver {
 		System.out.print(">");
 		String Repetitions = scanner.nextLine();
 		return Repetitions;
-	}
-	private int getExecutionNr(String workout_start,String exercise) throws SQLException {
-		String statement="select count(*) from Workout_result where workout_start = " + workout_start + " and exercise_name = " + exercise;
-		ResultSet rs= SQLQuery(statement);
-		rs.next();
-		return rs.getInt(1);
 	}
 	private String getSpecificDate(String date) {
 		System.out.println(date + " Date:");
@@ -287,21 +275,6 @@ public class Driver {
 		System.out.print(">");
 		String Gps_Time = "'" + scanner.nextLine() + "'";
 		return Gps_Time;
-	}
-	private void addResult() throws SQLException{
-		System.out.println("Which workout do you wish to edit your results for?");
-		ResultSet a= SQLQuery("Select Workout_start from Workout;");
-		while(a.next()){
-			System.out.println(a.getString(1));
-		}
-		String workout=getWorkoutStart();
-		System.out.println("which exercise do you wish to add a result to?");
-		ResultSet b =SQLQuery("Select Exercise_name from Workout_Contains where workout_start = " + workout);
-		while(b.next()){
-			System.out.println(b.getString(1));
-		}
-		String exercise = getExerciseName();
-		String statement = createExerciseResult(exercise,workout);
 	}
 /*TODO TIL MULIG FORENKLING AV KODEN
 	private String getInteger(String What) {
@@ -472,7 +445,7 @@ public class Driver {
 				printWorkout(Workout_Start);
 		}
 	private void exerciseCreation() throws SQLException{
-		String Buffer = scanner.nextLine();
+		scanner.nextLine();
 		
 		String ans;
 		String description;
@@ -526,13 +499,11 @@ public class Driver {
 			System.out.println(groups);
 			go = yesNo("Exercises");
 		}
-		
 	}
-
 	private boolean yesNo(String What) {
 		String ans;
 		System.out.println("Do you wish to add more " + What + "? (Y/N)");
-
+		
 		System.out.print(">");
 		ans=scanner.nextLine();
 		if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
@@ -591,6 +562,27 @@ public class Driver {
 		System.out.println("The following template has been created:");
 		printTemplates(id);
 		
+	}
+	private void addResult() throws SQLException{
+		System.out.println("Which workout do you wish to edit your results for?");
+		printWorkouts();
+		scanner.nextLine();
+		String workout = getWorkoutStart();
+		boolean go = true;;
+		String exercise;
+		String statement;
+		while(go){
+			System.out.println("which exercise do you wish to add a result to?");
+			ResultSet b =SQLQuery("Select Exercise_name from Workout_Contains where workout_start = " + workout);
+			while(b.next()){
+				System.out.println(b.getString(1));
+			}
+			exercise = getExerciseName();
+			statement = createExerciseResult(exercise,workout);
+			
+			SQLUpdate(statement);
+			go = yesNo("Results");
+		}
 	}
 //TODO END NAVIGATION
 //TODO DELETE
