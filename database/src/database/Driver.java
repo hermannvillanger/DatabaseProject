@@ -238,8 +238,7 @@ public class Driver {
 		String Climate = "'" + scanner.nextLine() + "'";
 		return Climate;
 	}
-
-	private String printTemplatesId() {
+	private String getTemplateId() {
 		System.out.println("Template Id:");
 		System.out.print(">");
 		String Template_Id = scanner.nextLine();
@@ -257,8 +256,7 @@ public class Driver {
 		String Shape = scanner.nextLine();
 		return Shape;
 	}
-
-	private String printTemplatesName() {
+	private String getTemplateName() {
 		System.out.println("Template Name:");
 		System.out.print("> ");
 		String Template_Name = "'" + scanner.nextLine() + "'";
@@ -444,7 +442,7 @@ public class Driver {
 	 */
 	private void template_creation() throws SQLException{ 
 		System.out.println("What do you want to name your template? ");
-		String templateName=printTemplatesName();
+		String templateName=getTemplateName();
 		SQLUpdate(createTemplate(templateName));
 		ResultSet rs=SQLQuery("Select last_insert_id from Template");
 		int id= rs.getInt(0);
