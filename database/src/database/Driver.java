@@ -61,6 +61,10 @@ public class Driver {
 		return "INSERT INTO Exercise (Exercise_Name,Description) " +
 		"\nVALUES (" + Exercise_Name + "," + Description + ")";
 	}
+	public String createExercise(String Exercise_Name, String Description){
+		return "INSERT INTO Exercise (Exercise_Name,Description) " +
+		"\nVALUES (" + Exercise_Name + "," + Description + ")";
+	}
 	public String createExerciseGroup(){
 		System.out.println("Create Exercise Group");
 		String Group_Name = getGroupName();
@@ -100,6 +104,13 @@ public class Driver {
 		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name) " +
 		"\nVALUES (" + Exercise_Name + "," + Group_Name + ")";
 	}
+
+	public String insertExerciseInGroup(String Exercise_Name, String Group_Name){
+
+		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name) " +
+		"\nVALUES (" + Exercise_Name + "," + Group_Name + ")";
+	}
+
 	public String createNote(String Workout_Start){
 		System.out.println("Create Note");
 		String Purpose = getPurpose();
@@ -292,8 +303,9 @@ public class Driver {
 	System.out.print(">");
 	What = "'"  + scanner.nextLine() + "'" ;
 	return What;
-}
-*/	
+
+}*/
+
 //TODO END GET FROM USER
 //TODO PRINT
 	public void printExercises() throws SQLException{
@@ -344,19 +356,30 @@ public class Driver {
 	}
 	public Integer getGoal(String Exercise_Name) throws SQLException{
 		ResultSet goal = myStmt.executeQuery("SELECT Goal FROM Goal Where Exercise_Name = " + Exercise_Name);
-		return goal.getInt("Goal");
+		if (goal.next()){
+			return goal.getInt("Goal");
+			}
+			else{
+				return null;
+			}
 	}
 	public void getBestResult(String Exercise_Name) throws SQLException{
 		
 		//NOTE! Might crash at the MAX(a*b).
 		ResultSet best = myStmt.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name + " AND MAX(Strain*Repetitions");
+		best.next();
 		Integer strain = best.getInt("Strain");
 		Integer reps = best.getInt("Repetitions");
 		String unit = best.getString("Unit");
 		Integer total = strain*reps;
 		System.out.println("Best result for " + Exercise_Name);
-		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + (getGoal(Exercise_Name)-total));
-	
+		if(getGoal(Exercise_Name)==null){
+			System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + ",No goal set");
+
+		}
+		else{
+		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + getGoal(Exercise_Name)-total);
+		}
 }
 //TODO END GET RESULT/GOAL INFORMATION
 //TODO NAVIGATION
@@ -394,6 +417,68 @@ public class Driver {
 				System.out.println("Følgende trening er nå oppretta: ");
 				printWorkout(Workout_Start);
 			}
+	private void exerciseCreation() throws SQLException{
+		String Buffer = scanner.nextLine();
+		
+		String returnString = createExercise();
+		SQLUpdate(returnString);
+		String ans;
+		String description;
+		String groupAns;
+		
+		
+		boolean go = true;
+		while(go){
+			ArrayList<String> groups;
+			System.out.println("What exercise do you wish to add?");
+			System.out.print(">");
+			ans=scanner.next();
+			ans = "'" + ans + "'";
+			
+			System.out.println("Add a description to " + ans + " (max 140 characters)");
+			System.out.print(">");
+			description=scanner.next();
+			description = "'" + ans + "'";
+			
+			boolean addGroups = true;
+			while(addGroups){
+				System.out.println("What Exercise Group(s) does " + ans + " belong to?");
+				System.out.println("If your Exercise Group does not exist in the list, write 'new'");
+				printExerciseGroups();
+				System.out.print(">");
+				groupAns = scanner.next();
+				
+				if(groupAns.equalsIgnoreCase("new")){
+					String newGroup = createExerciseGroup();
+					SQLUpdate(newGroup);
+					int pos1 = returnString.indexOf("VALUES");
+					int pos2 = returnString.indexOf(",", pos1);
+					String Group_Name = returnString.substring(pos1 + 8, pos2);
+					groups.add(Group_Name);
+					System.out.println("You have added " + ans + " into the new group " + Group_Name);
+					addGroups = YesNo("Exercise Groups");
+				}else{
+					ResultSet exists = SQLQuery("SELECT Group_Name FROM Exercise_Group WHERE Group_Name = "+ groupAns);
+					if(exists.first()){
+						groups.add(groupAns);
+						System.out.println("You have added " + ans + " into the Exercise Group " + groupAns);
+						addGroups = YesNo("Exercise Groups");
+					}else{
+						System.out.println("This Exercise Group does not exist, make sure you look for typos. Add new Group by writing 'new'");
+					}
+				}
+			}
+			SQLUpdate(createExercise(ans, description));
+			for(int i=0; i<groups.size();i++){
+				SQLUpdate(insertExerciseInGroup(ans, groups.get(i)));
+			}
+			System.out.println("You have now created the Exercise: " + ans);
+			System.out.println(ans + " has been added into the following groups:");
+			System.out.println(groups);
+			go = yesNo("Exercises");
+		}
+		
+	}
 	private boolean yesNo() {
 		String ans;
 		System.out.println("Ynskje du å leggje te fleire øvingar? (J/N)");
