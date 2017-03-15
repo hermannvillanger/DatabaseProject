@@ -33,7 +33,7 @@ public class Driver {
  				System.out.println("10: Exit");
  				Integer num=scanner.nextInt();
  				switch (num){
- 				case 1: template_creation();
+ 				case 1: templateCreation();
 				break;
  				case 2: exerciseCreation();
  				break;
@@ -74,14 +74,13 @@ public class Driver {
 	public String createExerciseResult(){
 		System.out.println("Exercise Result");
 		String Strain = getStrain();
-		String Res_Date = getSpecificDate("Res");
 		String Execution_Nr = getExecutionNr();
 		String Repetitions = getRepetitions();
 		String Exercise_Name = getExerciseName();
 		String Workout_Start = getWorkoutStart();
 		
-		return "INSERT INTO Workout_Result (Strain,Res_Date,Execution_Nr,Repetitions,Exercise_Name,Workout_Start) " +
-		"\nVALUES (" + Strain + "," + Res_Date + "," + Execution_Nr + "," + Repetitions + "," + 
+		return "INSERT INTO Workout_Result (Strain,Execution_Nr,Repetitions,Exercise_Name,Workout_Start) " +
+		"\nVALUES (" + Strain + "," + Execution_Nr + "," + Repetitions + "," + 
 		Exercise_Name + "," + Workout_Start +")";
 	}
 	public String createGoal(){
@@ -334,6 +333,17 @@ public class Driver {
 			System.out.println( myRs.getString("Exercise_Name") + ": " + myRs.getString("Description") );
 		}
 	}
+	public void printWorkouts() throws SQLException{
+		myStmt = myConn.createStatement();
+		
+		ResultSet myRs = myStmt.executeQuery("select Workout_Start, Workout_End,Template_Id from Workout");
+//		ResultSet exRs;
+		System.out.println("Workout_Start, Workout_End, Template_Id");
+		while(myRs.next()){
+			System.out.println( myRs.getString("Workout_Start") + "," + myRs.getString("Workout_End") + 
+					"," + myRs.getString("Template_Id"));
+		}
+	}
 	public void printExerciseGroups() throws SQLException{
 		myStmt = myConn.createStatement();
 		
@@ -529,6 +539,8 @@ public class Driver {
 	}
 	private void finishedWorkout() throws SQLException{
 		System.out.println("Which workout did you do?");
+		printWorkouts();
+		scanner.nextLine();
 		String Workout_Start = getWorkoutStart();
 		System.out.println("How was you experience of the workout?");
 		String Shape = getShape();
@@ -549,7 +561,7 @@ public class Driver {
 	/**
 	 * creates a template from user
 	 */
-	private void template_creation() throws SQLException{ 
+	private void templateCreation() throws SQLException{ 
 		scanner.nextLine();
 		System.out.println("What do you want to name your template? ");
 		String templateName = getTemplateName();
