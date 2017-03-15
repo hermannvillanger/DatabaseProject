@@ -345,6 +345,38 @@ public class Driver {
 			System.out.println(myRs.getString("Group_Name") + ": " + myRs.getString("Description"));
 		}
 	}
+	
+	public void printTemplates(Integer Template_Id) throws SQLException{
+		if (Template_Id == null) {
+			myStmt = myConn.createStatement();
+			
+			ResultSet myRs = myStmt.executeQuery("select * from Template");
+			System.out.println("Templates:");
+			while(myRs.next()){
+				int Id = myRs.getInt("Template_Id");
+				System.out.println(Id + ": " + myRs.getString("Template_Name"));
+				ResultSet a = SQLQuery("select exercises from templatecontains where template_Id = " + Id);
+				while (a.next()) {
+					String exercise=a.getString("Exercise");
+					System.out.println(exercise);
+				}
+			}
+		}else {
+			myStmt = myConn.createStatement();
+			
+			ResultSet myRs = myStmt.executeQuery("select * from Template");
+			System.out.println("Templates:");
+			while(myRs.next()){
+				System.out.println(myRs.getString("Template_Id") + ": " + myRs.getString("Template_Name"));
+				ResultSet a = SQLQuery("select exercises from templatecontains where template_Id = " + Template_Id);
+				while (a.next()) {
+					String exercise=a.getString("Exercise");
+					System.out.println(exercise);
+				}
+			}
+		}
+	}
+	
 //TODO END PRINT
 //TODO GET RESULT/GOAL INFORMATION
 	public void getResults(String Exercise_Name) throws SQLException{
@@ -395,13 +427,13 @@ public class Driver {
 			String ans=scanner.next();
 			if(ans.equals("J")||ans.equals("j")){
 				System.out.println("kva for ein mal ynskje du å bruka? ");
-//				printTemplates(null);
+				printTemplates(null);
 				System.out.print(">");
 				Integer num=scanner.nextInt();
-//				printTemplates(num); //må lages
-//				ArrayList<String> exercises=getExercisesFromTemplate(num);
-//				for(int i=0;i<exercises.size();i++){
-//					SQLQuery(createWorkoutContains(Workout_Start,exercises.get(i)));
+				printTemplates(num); //må lages
+				ArrayList<String> exercises=getExercisesFromTemplate(num);
+				for(int i=0;i<exercises.size();i++){
+					SQLQuery(createWorkoutContains(Workout_Start,exercises.get(i)));
 				}
 				boolean go;
 				go = yesNo();
@@ -545,7 +577,7 @@ public class Driver {
 			}
 		}
 		System.out.println("The following template has been created:");
-		//printTemplates(id);
+		printTemplates(id);
 		
 	}
 //TODO END NAVIGATION
