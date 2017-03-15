@@ -28,6 +28,8 @@ public class Driver {
  				System.out.println("1: Create Template");
  				System.out.println("2: Create Exercise");
  				System.out.println("3: Create Workout");
+ 				System.out.println("4: Register Workout");
+ 				System.out.println("10: Exit");
  				Integer num=scanner.nextInt();
  				switch (num){
 // 				case 1: template_creation();
@@ -36,8 +38,11 @@ public class Driver {
 // 				break;
  				case 3: workoutCreation();
  				break;
+ 				case 4: workoutCreation();
+ 				break;
+ 				case 10: makeChanges = false;
+ 				break;
  				}
- 				makeChanges = false;
  			}
  		}
  		catch(Exception exc){
@@ -280,12 +285,18 @@ public class Driver {
 		return Gps_Time;
 	}
 //TODO TIL MULIG FORENKLING AV KODEN
-//	private String getWhat(String What) {
-//		System.out.println(What + ":");
+//	private String getInteger(String What) {
+//		System.out.println(What + ":(Integer)");
 //		System.out.print(">");
-//		What = "'" + scanner.nextLine() + "'";
+//		What = scanner.nextLine();
 //		return What;
 //	}
+//	private String getString(String What) {
+//	System.out.println(What + ": (String)");
+//	System.out.print(">");
+//	What = "'"  + scanner.nextLine() + "'" ;
+//	return What;
+//}
 	
 //TODO END GET FROM USER
 //TODO PRINT
