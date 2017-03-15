@@ -16,6 +16,7 @@ public class Driver {
 	}
 	void init(){
 		scanner = new Scanner(System.in);
+		String Buffer = scanner.nextLine();
 	}
 	void run(){
  		try{
@@ -28,7 +29,7 @@ public class Driver {
  				System.out.println("1: Create Template");
  				System.out.println("2: Create Exercise");
  				System.out.println("3: Create Workout");
- 				System.out.println("4: Register Workout");
+ 				System.out.println("4: Register Finished Workout");
  				System.out.println("10: Exit");
  				Integer num=scanner.nextInt();
  				switch (num){
@@ -38,7 +39,7 @@ public class Driver {
 // 				break;
  				case 3: workoutCreation();
  				break;
- 				case 4: workoutCreation();
+ 				case 4: finishedWorkout();
  				break;
  				case 10: makeChanges = false;
  				break;
@@ -97,9 +98,8 @@ public class Driver {
 		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name) " +
 		"\nVALUES (" + Exercise_Name + "," + Group_Name + ")";
 	}
-	public String createNote(){
+	public String createNote(String Workout_Start){
 		System.out.println("Create Note");
-		String Workout_Start = getWorkoutStart();
 		String Purpose = getPurpose();
 		String Tips = getTips();
 		
@@ -110,14 +110,11 @@ public class Driver {
 		System.out.println("Create Workout");
 		String Workout_Start = getWorkoutStart();
 		String Workout_End = getWorkoutEnd();
-		String Shape = getShape();
-		String Performance = getPerformance();
 		String Template_Id = getTemplateId();
-		String Climate = getClimate();
 		
-		return "INSERT INTO Workout (Workout_Start,Workout_End,Shape,Performance,Template_Id,Climate) " +
-		"\nVALUES (" + Workout_Start + "," + Workout_End + "," + Shape + "," + Performance + "," +
-		Template_Id + "," + Climate + ")";
+		return "INSERT INTO Workout (Workout_Start,Workout_End,Template_Id) " +
+		"\nVALUES (" + Workout_Start + "," + Workout_End + ","  +
+		Template_Id + ")";
 	}
 	public String createWorkoutContains(String Workout_Start,String Exercise_Name){		
 		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start) " +
@@ -284,20 +281,20 @@ public class Driver {
 		String Gps_Time = "'" + scanner.nextLine() + "'";
 		return Gps_Time;
 	}
-//TODO TIL MULIG FORENKLING AV KODEN
-//	private String getInteger(String What) {
-//		System.out.println(What + ":(Integer)");
-//		System.out.print(">");
-//		What = scanner.nextLine();
-//		return What;
-//	}
-//	private String getString(String What) {
-//	System.out.println(What + ": (String)");
-//	System.out.print(">");
-//	What = "'"  + scanner.nextLine() + "'" ;
-//	return What;
-//}
-	
+/*TODO TIL MULIG FORENKLING AV KODEN
+	private String getInteger(String What) {
+		System.out.println(What + ":(Integer)");
+		System.out.print(">");
+		What = scanner.nextLine();
+		return What;
+	}
+	private String getString(String What) {
+	System.out.println(What + ": (String)");
+	System.out.print(">");
+	What = "'"  + scanner.nextLine() + "'" ;
+	return What;
+}
+*/	
 //TODO END GET FROM USER
 //TODO PRINT
 	public void printExercises() throws SQLException{
@@ -327,7 +324,15 @@ public class Driver {
 		while(myRs.next()){
 			System.out.println( myRs.getString("Exercise_Name") + ": " + myRs.getString("Description") );
 		}
+	}
+	public void printExerciseGroups() throws SQLException{
+		myStmt = myConn.createStatement();
 		
+		ResultSet myRs = myStmt.executeQuery("select * from Exercise_Group");
+		System.out.println("Exercise Groups:");
+		while(myRs.next()){
+			System.out.println(myRs.getString("Group_Name") + ": " + myRs.getString("Description"));
+		}
 	}
 //TODO END PRINT
 //TODO GET RESULT/GOAL INFORMATION
@@ -338,7 +343,6 @@ public class Driver {
 			System.out.println(results.getString("Res_Date") + "," +results.getString("Strain") + "," + results.getString("Unit") + "," + results.getString("Repetitions"));
 		}	
 	}
-	
 	public Integer getGoal(String Exercise_Name) throws SQLException{
 		ResultSet goal = myStmt.executeQuery("SELECT Goal FROM Goal Where Exercise_Name = " + Exercise_Name);
 		return goal.getInt("Goal");
@@ -358,7 +362,6 @@ public class Driver {
 //TODO END GET RESULT/GOAL INFORMATION
 //TODO NAVIGATION
 	private void workoutCreation() throws SQLException{
-		String Buffer = scanner.nextLine();
 		
 		String returnString = createWorkout();
 		SQLUpdate(returnString);
@@ -404,6 +407,37 @@ public class Driver {
 			return false;
 		}
 	}
+	private boolean yesNo(String What) {
+		String ans;
+		System.out.println("Do you add more " + What + "? (J/N)");
+		System.out.print(">");
+		ans=scanner.next();
+		if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	private void finishedWorkout() throws SQLException{
+		System.out.println("Which workout did you do?");
+		String Workout_Start = getWorkoutStart();
+		System.out.println("How was you experience of the workout?");
+		String Shape = getShape();
+		String Performance = getPerformance();
+		String Climate = getClimate();
+		String update = "Update Workout \nSet Shape = " + Shape +
+				", Performance = " + Performance + ", Climate = "+ Climate + 
+				"\n where Workout_Start = " + Workout_Start;
+		SQLUpdate(update);
+		
+		boolean go = yesNo("Notes");
+		while(go){
+			String note = createNote(Workout_Start);
+			SQLUpdate(note);
+			go = yesNo("Notes");
+		}
+	}
 //TODO END NAVIGATION
 //TODO DELETE
 	private String DeleteExercise(String Exercise_Name) throws SQLException{
@@ -437,5 +471,4 @@ public class Driver {
 		return myRs;
 	}
 //TODO END MYSQL QUERY
-	
 }
