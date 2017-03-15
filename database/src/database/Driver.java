@@ -39,7 +39,10 @@ public class Driver {
  				break;
  				case 3: workoutCreation();
  				break;
- 				case 4: finishedWorkout();
+ 				
+ 				case 5: registerGoal();
+ 				break;
+ 				case 6: finishedWorkout();
  				break;
  				case 10: makeChanges = false;
  				break;
@@ -85,14 +88,31 @@ public class Driver {
 	}
 	public String createGoal(){
 		System.out.println("Create Goal");
+		
+		System.out.println("Here's a list over available Exercises:");
+		printExercises();
+		System.out.println("Which Exercise do you wish to add a Goal for?");
+		String Exercise_Name = getExerciseName();
 		String Goal = getGoal();
 		String Start_Date = getSpecificDate("Start");
 		String End_Date = getSpecificDate("End");
-		String Exercise_Name = getExerciseName();
+		
 		
 		return "INSERT INTO Goal (Goal,Start_Date,End_Date,Exercise_Name) " +
 		"VALUES (" + Goal + "," + Start_Date + "," + End_Date + "," + Exercise_Name + ")";
 	}
+	public String createGoal(String Exercise_Name){
+		System.out.println("Create Goal for " + Exercise_Name);
+		
+		String Goal = getGoal();
+		String Start_Date = getSpecificDate("Start");
+		String End_Date = getSpecificDate("End");
+		
+		
+		return "INSERT INTO Goal (Goal,Start_Date,End_Date,Exercise_Name) " +
+		"VALUES (" + Goal + "," + Start_Date + "," + End_Date + "," + Exercise_Name + ")";
+	}
+	
 	public String insertExerciseInGroup(){
 		System.out.println("Insert Exercise into Group");
 		String Exercise_Name = getExerciseName();
@@ -223,10 +243,10 @@ public class Driver {
 		return Strain;
 	}
 	private String getGoal() {
-		System.out.println("Goal:");
+		System.out.println("Goal (As Strain * Repetitions[min:1]) :");
 		System.out.print(">");
-		String Goal = scanner.nextLine();
-		return Goal;
+		String goal = scanner.nextLine();
+		return goal;
 	}
 	private String getTips() {
 		System.out.println("Tips:");
@@ -509,12 +529,27 @@ public class Driver {
 			System.out.println("You have now created the Exercise: " + ans);
 			System.out.println(ans + " has been added into the following groups:");
 			System.out.println(groups);
+			String goalReg;
+			System.out.println("Do you wish to add a goal for " + ans + "?(Y/N)");
+			System.out.println(">");
+			goalReg = scanner.nextLine();
+			if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
+				createGoal(ans);
+			}
 			go = yesNo("Exercises");
 		}
 		
 	}
+	private void registerGoal(){
 
-	private boolean yesNo(String What) {
+		boolean go = true;
+		while(go){
+			createGoal();
+			go=yesNo("Goals");
+		}
+		
+	}
+ 	private boolean yesNo(String What) {
 		String ans;
 		System.out.println("Do you wish to add more " + What + "? (Y/N)");
 
