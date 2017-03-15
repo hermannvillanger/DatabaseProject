@@ -28,6 +28,7 @@ public class Driver {
  				System.out.println("1: Create Template");
  				System.out.println("2: Create Exercise");
  				System.out.println("3: Create Workout");
+ 				System.out.println("4: Register Workout");
  				System.out.println("10: Exit");
  				Integer num=scanner.nextInt();
  				switch (num){
@@ -36,6 +37,8 @@ public class Driver {
 // 				case 2: exercise_creation();
 // 				break;
  				case 3: workoutCreation();
+ 				break;
+ 				case 4: workoutCreation();
  				break;
  				case 10: makeChanges = false;
  				break;
