@@ -90,7 +90,11 @@ public class Driver {
 		System.out.println("Create Goal");
 		
 		System.out.println("Here's a list over available Exercises:");
-		printExercises();
+		try {
+			printExercises();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		System.out.println("Which Exercise do you wish to add a Goal for?");
 		String Exercise_Name = getExerciseName();
 		String Goal = getGoal();
