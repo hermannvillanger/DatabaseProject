@@ -517,6 +517,7 @@ public class Driver {
 	private boolean yesNo(String What) {
 		String ans;
 		System.out.println("Do you wish to add more " + What + "? (Y/N)");
+
 		System.out.print(">");
 		ans=scanner.nextLine();
 		if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
@@ -571,6 +572,7 @@ public class Driver {
 				SQLUpdate(addToTemplate(id,nextExercise));
 			}
 		}
+
 		System.out.println("The following template has been created:");
 		printTemplates(id);
 		
