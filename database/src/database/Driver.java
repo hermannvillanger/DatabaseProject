@@ -28,7 +28,8 @@ public class Driver {
  				System.out.println("1: Create Template");
  				System.out.println("2: Create Exercise");
  				System.out.println("3: Create Workout");
- 				System.out.println("4: Register Finished Workout");
+ 				System.out.println("4: Add a result to your workout");
+ 				System.out.println("5: Register Finished Workout");
 
  				System.out.println("10: Exit");
  				Integer num=scanner.nextInt();
@@ -39,7 +40,9 @@ public class Driver {
  				break;
  				case 3: workoutCreation();
  				break;
- 				case 4: finishedWorkout();
+ 				case 4: addResult();
+ 				break;
+ 				case 5: finishedWorkout();
  				break;
  				case 10: makeChanges = false;
  				break;
@@ -71,17 +74,14 @@ public class Driver {
 		return "INSERT INTO Exercise_Group (Group_Name,Description) " +
 		"\nVALUES (" + Group_Name + "," + Description +")";
 	}
-	public String createExerciseResult(){
+	public String createExerciseResult(String exercise,String workout) throws SQLException{
 		System.out.println("Exercise Result");
-		String Strain = getStrain();
-		String Execution_Nr = getExecutionNr();
-		String Repetitions = getRepetitions();
-		String Exercise_Name = getExerciseName();
-		String Workout_Start = getWorkoutStart();
+		int Strain = getStrain();
+		int Execution_Nr = getExecutionNr(exercise,workout)+1;
+		int Repetitions = getRepetitions();
 		
 		return "INSERT INTO Workout_Result (Strain,Execution_Nr,Repetitions,Exercise_Name,Workout_Start) " +
-		"\nVALUES (" + Strain + "," + Execution_Nr + "," + Repetitions + "," + 
-		Exercise_Name + "," + Workout_Start +")";
+		"\nVALUES (" + Strain + "," + Execution_Nr + "," + Repetitions + "," + exercise + "," + workout + ")";
 	}
 	public String createGoal(){
 		System.out.println("Create Goal");
@@ -204,11 +204,11 @@ public class Driver {
 		String Repetitions = scanner.nextLine();
 		return Repetitions;
 	}
-	private String getExecutionNr() {
-		System.out.println("Execution Nr");
-		System.out.print(">");
-		String Execution_Nr = scanner.nextLine();
-		return Execution_Nr;
+	private int getExecutionNr(String workout_start,String exercise) throws SQLException {
+		String statement="select count(*) from Workout_result where workout_start = " + workout_start + " and exercise_name = " + exercise;
+		ResultSet rs= SQLQuery(statement);
+		rs.next();
+		return rs.getInt(1);
 	}
 	private String getSpecificDate(String date) {
 		System.out.println(date + " Date:");
@@ -287,6 +287,21 @@ public class Driver {
 		System.out.print(">");
 		String Gps_Time = "'" + scanner.nextLine() + "'";
 		return Gps_Time;
+	}
+	private void addResult() throws SQLException{
+		System.out.println("Which workout do you wish to edit your results for?");
+		ResultSet a= SQLQuery("Select Workout_start from Workout;");
+		while(a.next()){
+			System.out.println(a.getString(1));
+		}
+		String workout=getWorkoutStart();
+		System.out.println("which exercise do you wish to add a result to?");
+		ResultSet b =SQLQuery("Select Exercise_name from Workout_Contains where workout_start = " + workout);
+		while(b.next()){
+			System.out.println(b.getString(1));
+		}
+		String exercise = getExerciseName();
+		String statement = createExerciseResult(exercise,workout);
 	}
 /*TODO TIL MULIG FORENKLING AV KODEN
 	private String getInteger(String What) {
