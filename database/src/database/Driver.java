@@ -329,6 +329,16 @@ public class Driver {
 		}
 		
 	}
+	public void getTemplate() throws SQLException{
+		myStmt = myConn.createStatement();
+		
+		ResultSet myRs = myStmt.executeQuery("select * from Template");
+		System.out.println("Templates:");
+		while(myRs.next()){
+			System.out.println(myRs.getString("Template_Name") + ": " + myRs.getString("Template_Id"));
+		}
+	}
+	
 //TODO END PRINT
 //TODO GET RESULT/GOAL INFORMATION
 	public void getResults(String Exercise_Name) throws SQLException{
