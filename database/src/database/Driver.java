@@ -384,6 +384,24 @@ public class Driver {
 		}
 	}
 	
+	public ArrayList<String> getTemplatesArray(Integer Template_Id) throws SQLException {
+		myStmt = myConn.createStatement();
+		ArrayList<String> tempArr= new ArrayList<String>();
+		
+		// ResultSet myRs = myStmt.executeQuery("select * from Template Where Template_Id = " + Template_Id);
+		// System.out.println("Template:");
+		// myRs.next();
+		// System.out.println(myRs.getString("Template_Id") + ": " + myRs.getString("Template_Name"));
+		ResultSet a = SQLQuery("select Exercise_Name from template_contains where template_Id = " + Template_Id);
+		while (a.next()) {
+			String exercise=a.getString("Exercise_Name");
+			// System.out.println(exercise);
+			tempArr.add(exercise);
+		}
+		return tempArr;
+	}
+
+	
 //TODO END PRINT
 //TODO GET RESULT/GOAL INFORMATION
 	public void getResults(String Exercise_Name) throws SQLException{
