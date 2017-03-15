@@ -41,6 +41,8 @@ public class Driver {
  				case 3: workoutCreation();
  				break;
  				case 4: addResult();
+        break;
+ 				case 5: registerGoal();
  				break;
  				case 6: finishedWorkout();
  				break;
@@ -84,14 +86,35 @@ public class Driver {
 	}
 	public String createGoal(){
 		System.out.println("Create Goal");
+		
+		System.out.println("Here's a list over available Exercises:");
+		try {
+			printExercises();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Which Exercise do you wish to add a Goal for?");
+		String Exercise_Name = getExerciseName();
 		String Goal = getGoal();
 		String Start_Date = getSpecificDate("Start");
 		String End_Date = getSpecificDate("End");
-		String Exercise_Name = getExerciseName();
+		
 		
 		return "INSERT INTO Goal (Goal,Start_Date,End_Date,Exercise_Name) " +
 		"VALUES (" + Goal + "," + Start_Date + "," + End_Date + "," + Exercise_Name + ")";
 	}
+	public String createGoal(String Exercise_Name){
+		System.out.println("Create Goal for " + Exercise_Name);
+		
+		String Goal = getGoal();
+		String Start_Date = getSpecificDate("Start");
+		String End_Date = getSpecificDate("End");
+		
+		
+		return "INSERT INTO Goal (Goal,Start_Date,End_Date,Exercise_Name) " +
+		"VALUES (" + Goal + "," + Start_Date + "," + End_Date + "," + Exercise_Name + ")";
+	}
+	
 	public String insertExerciseInGroup(){
 		System.out.println("Insert Exercise into Group");
 		String Exercise_Name = getExerciseName();
@@ -211,10 +234,10 @@ public class Driver {
 		return Strain;
 	}
 	private String getGoal() {
-		System.out.println("Goal:");
+		System.out.println("Goal (As Strain * Repetitions[min:1]) :");
 		System.out.print(">");
-		String Goal = scanner.nextLine();
-		return Goal;
+		String goal = scanner.nextLine();
+		return goal;
 	}
 	private String getTips() {
 		System.out.println("Tips:");
@@ -372,6 +395,20 @@ public class Driver {
 		}
 	}
 	
+	public ArrayList<String> getTemplatesArray(Integer Template_Id) throws SQLException {
+		myStmt = myConn.createStatement();
+		ArrayList<String> tempArr= new ArrayList<String>();
+		
+		ResultSet a = SQLQuery("select Exercise_Name from template_contains where template_Id = " + Template_Id);
+		while (a.next()) {
+			String exercise=a.getString("Exercise_Name");
+			// System.out.println(exercise);
+			tempArr.add(exercise);
+		}
+		return tempArr;
+	}
+
+	
 //TODO END PRINT
 //TODO GET RESULT/GOAL INFORMATION
 	public void getResults(String Exercise_Name) throws SQLException{
@@ -497,10 +534,26 @@ public class Driver {
 			System.out.println("You have now created the Exercise: " + ans);
 			System.out.println(ans + " has been added into the following groups:");
 			System.out.println(groups);
+			String goalReg;
+			System.out.println("Do you wish to add a goal for " + ans + "?(Y/N)");
+			System.out.println(">");
+			goalReg = scanner.nextLine();
+			if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
+				createGoal(ans);
+			}
 			go = yesNo("Exercises");
 		}
 	}
-	private boolean yesNo(String What) {
+	private void registerGoal(){
+
+		boolean go = true;
+		while(go){
+			createGoal();
+			go=yesNo("Goals");
+		}
+		
+	}
+ 	private boolean yesNo(String What) {
 		String ans;
 		System.out.println("Do you wish to add more " + What + "? (Y/N)");
 		
