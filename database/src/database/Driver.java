@@ -58,6 +58,10 @@ public class Driver {
 		return "INSERT INTO Exercise (Exercise_Name,Description) " +
 		"\nVALUES (" + Exercise_Name + "," + Description + ")";
 	}
+	public String createExercise(String Exercise_Name, String Description){
+		return "INSERT INTO Exercise (Exercise_Name,Description) " +
+		"\nVALUES (" + Exercise_Name + "," + Description + ")";
+	}
 	public String createExerciseGroup(){
 		System.out.println("Create Exercise Group");
 		String Group_Name = getGroupName();
@@ -94,6 +98,11 @@ public class Driver {
 		String Exercise_Name = getExerciseName();
 		String Group_Name = getGroupName();
 		
+		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name) " +
+		"\nVALUES (" + Exercise_Name + "," + Group_Name + ")";
+	}
+	public String insertExerciseInGroup(String Exercise_Name, String Group_Name){
+
 		return "INSERT INTO Exercise_Group (Exercise_Name,Group_Name) " +
 		"\nVALUES (" + Exercise_Name + "," + Group_Name + ")";
 	}
@@ -284,19 +293,19 @@ public class Driver {
 		String Gps_Time = "'" + scanner.nextLine() + "'";
 		return Gps_Time;
 	}
-//TODO TIL MULIG FORENKLING AV KODEN
-//	private String getInteger(String What) {
-//		System.out.println(What + ":(Integer)");
-//		System.out.print(">");
-//		What = scanner.nextLine();
-//		return What;
-//	}
-//	private String getString(String What) {
-//	System.out.println(What + ": (String)");
-//	System.out.print(">");
-//	What = "'"  + scanner.nextLine() + "'" ;
-//	return What;
-//}
+/*TODO TIL MULIG FORENKLING AV KODEN
+	private String getInteger(String What) {
+		System.out.println(What + ":(Integer)");
+		System.out.print(">");
+		What = scanner.nextLine();
+		return What;
+	}
+	private String getString(String What) {
+	System.out.println(What + ": (String)");
+	System.out.print(">");
+	What = "'"  + scanner.nextLine() + "'" ;
+	return What;
+}*/
 	
 //TODO END GET FROM USER
 //TODO PRINT
@@ -403,6 +412,68 @@ public class Driver {
 				System.out.println("Følgende trening er nå oppretta: ");
 				printWorkout(Workout_Start);
 			}
+	private void exerciseCreation() throws SQLException{
+		String Buffer = scanner.nextLine();
+		
+		String returnString = createExercise();
+		SQLUpdate(returnString);
+		String ans;
+		String description;
+		String groupAns;
+		
+		
+		boolean go = true;
+		while(go){
+			ArrayList<String> groups;
+			System.out.println("What exercise do you wish to add?");
+			System.out.print(">");
+			ans=scanner.next();
+			ans = "'" + ans + "'";
+			
+			System.out.println("Add a description to " + ans + " (max 140 characters)");
+			System.out.print(">");
+			description=scanner.next();
+			description = "'" + ans + "'";
+			
+			boolean addGroups = true;
+			while(addGroups){
+				System.out.println("What Exercise Group(s) does " + ans + " belong to?");
+				System.out.println("If your Exercise Group does not exist in the list, write 'new'");
+				printExerciseGroups();
+				System.out.print(">");
+				groupAns = scanner.next();
+				
+				if(groupAns.equalsIgnoreCase("new")){
+					String newGroup = createExerciseGroup();
+					SQLUpdate(newGroup);
+					int pos1 = returnString.indexOf("VALUES");
+					int pos2 = returnString.indexOf(",", pos1);
+					String Group_Name = returnString.substring(pos1 + 8, pos2);
+					groups.add(Group_Name);
+					System.out.println("You have added " + ans + " into the new group " + Group_Name);
+					addGroups = YesNo("Exercise Groups");
+				}else{
+					ResultSet exists = SQLQuery("SELECT Group_Name FROM Exercise_Group WHERE Group_Name = "+ groupAns);
+					if(exists.first()){
+						groups.add(groupAns);
+						System.out.println("You have added " + ans + " into the Exercise Group " + groupAns);
+						addGroups = YesNo("Exercise Groups");
+					}else{
+						System.out.println("This Exercise Group does not exist, make sure you look for typos. Add new Group by writing 'new'");
+					}
+				}
+			}
+			SQLUpdate(createExercise(ans, description));
+			for(int i=0; i<groups.size();i++){
+				SQLUpdate(insertExerciseInGroup(ans, groups.get(i)));
+			}
+			System.out.println("You have now created the Exercise: " + ans);
+			System.out.println(ans + " has been added into the following groups:");
+			System.out.println(groups);
+			go = yesNo("Exercises");
+		}
+		
+	}
 	private boolean yesNo() {
 		String ans;
 		System.out.println("Ynskje du å leggje te fleire øvingar? (J/N)");
