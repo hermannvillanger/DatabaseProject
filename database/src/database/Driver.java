@@ -341,19 +341,30 @@ public class Driver {
 	
 	public Integer getGoal(String Exercise_Name) throws SQLException{
 		ResultSet goal = myStmt.executeQuery("SELECT Goal FROM Goal Where Exercise_Name = " + Exercise_Name);
-		return goal.getInt("Goal");
+		if (goal.next()){
+			return goal.getInt("Goal");
+			}
+			else{
+				return null;
+			}
 	}
 	public void getBestResult(String Exercise_Name) throws SQLException{
 		
 		//NOTE! Might crash at the MAX(a*b).
 		ResultSet best = myStmt.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name + " AND MAX(Strain*Repetitions");
+		best.next();
 		Integer strain = best.getInt("Strain");
 		Integer reps = best.getInt("Repetitions");
 		String unit = best.getString("Unit");
 		Integer total = strain*reps;
 		System.out.println("Best result for " + Exercise_Name);
-		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + (getGoal(Exercise_Name)-total));
-	
+		if(getGoal(Exercise_Name)==null){
+			System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + ",No goal set");
+
+		}
+		else{
+		System.out.println(best.getString("Res_Date")+","+strain+","+best.getString("Unit")+"," + reps + "," + total + "," + getGoal(Exercise_Name)-total);
+		}
 }
 //TODO END GET RESULT/GOAL INFORMATION
 //TODO NAVIGATION
