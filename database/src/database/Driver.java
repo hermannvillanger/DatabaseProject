@@ -29,6 +29,7 @@ public class Driver {
  				System.out.println("2: Create Exercise");
  				System.out.println("3: Create Workout");
  				System.out.println("4: Add a result to your workout");
+ 				System.out.println("5: Add goal to exercise");
  				System.out.println("6: Register Finished Workout");
 
  				System.out.println("10: Exit");
@@ -41,7 +42,7 @@ public class Driver {
  				case 3: workoutCreation();
  				break;
  				case 4: addResult();
-        break;
+ 				break;
  				case 5: registerGoal();
  				break;
  				case 6: finishedWorkout();
@@ -86,7 +87,6 @@ public class Driver {
 	}
 	public String createGoal(){
 		System.out.println("Create Goal");
-		
 		System.out.println("Here's a list over available Exercises:");
 		try {
 			printExercises();
@@ -148,8 +148,8 @@ public class Driver {
 		"\nVALUES (" + Workout_Start + "," + Workout_End + ")";
 	}
 	public String createWorkoutContains(String Workout_Start,String Exercise_Name){		
-		return "INSERT INTO Workout_Contains (Exercise_Name,Workout_Start) " +
-		"\nVALUES (" + Exercise_Name + "," + Workout_Start +")";
+		return "INSERT INTO Workout_Contains (Workout_Start,Exercise_Name) " +
+		"\nVALUES (" + Workout_Start  + "," + Exercise_Name +")";
 	}
 	public String createTemplate(String Template_Name){
 		return "INSERT INTO Template (Template_Name) " +
@@ -380,7 +380,8 @@ public class Driver {
 					System.out.println(exercise);
 				}
 			}
-		}else {
+		}
+		else {
 			myStmt = myConn.createStatement();
 			
 			ResultSet myRs = myStmt.executeQuery("select * from Template Where Template_Id = " + Template_Id);
@@ -403,7 +404,7 @@ public class Driver {
 		while (a.next()) {
 			String exercise=a.getString("Exercise_Name");
 			// System.out.println(exercise);
-			tempArr.add(exercise);
+			tempArr.add("'" + exercise + "'");
 		}
 		return tempArr;
 	}
@@ -455,31 +456,30 @@ public class Driver {
 		int pos2 = returnString.indexOf(",", pos1);
 		String Workout_Start = returnString.substring(pos1 + 8, pos2);
 		
-			System.out.println("Ynskje du å leggja te ein mal for treninga di? (J/N)");
+			System.out.println("Do you want to add a template for your workout? (Y/N)");
+			System.out.print(">");
 			String ans=scanner.nextLine();
-			if(ans.equals("J")||ans.equals("j")){
-				System.out.println("kva for ein mal ynskje du å bruka? ");
+			if(ans.equals("J")||ans.equals("j")||ans.equals("Y")||ans.equals("y")){
+				System.out.println("Which Template do you want to use? ");
 				printTemplates(null);
 				System.out.print(">");
 				Integer num=scanner.nextInt();
-				printTemplates(num); //må lages
-/*				ArrayList<String> exercises = getExercisesFromTemplate(num);
+				printTemplates(num);
+				ArrayList<String> exercises = getTemplatesArray(num);
 				for(int i=0;i<exercises.size();i++){
-					SQLQuery(createWorkoutContains(Workout_Start,exercises.get(i)));
-*/				}
+					SQLUpdate(createWorkoutContains(Workout_Start,exercises.get(i)));
+				}
 				boolean go;
 				go = yesNo("Workouts");
 				while(go){
 					printExercises();
-					System.out.println("Kva for ein øving ynskje du å leggja te?");
-					System.out.print(">");
-					ans=scanner.nextLine();
-					ans = "'" + ans + "'";
+					ans = getExerciseName();
 					SQLUpdate(createWorkoutContains(Workout_Start ,ans));
 					go = yesNo("Workouts");
 				}
-				System.out.println("Følgende trening er nå oppretta: ");
+				System.out.println("The following workout has been created: ");
 				printWorkout(Workout_Start);
+			}
 		}
 	private void exerciseCreation() throws SQLException{
 		scanner.nextLine();
@@ -536,22 +536,21 @@ public class Driver {
 			System.out.println(groups);
 			String goalReg;
 			System.out.println("Do you wish to add a goal for " + ans + "?(Y/N)");
-			System.out.println(">");
+			System.out.print(">");
 			goalReg = scanner.nextLine();
-			if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
-				createGoal(ans);
+			if(goalReg.contains("J")||goalReg.contains("j")||goalReg.contains("Y")||goalReg.contains("y")){
+				SQLUpdate(createGoal(ans));
 			}
 			go = yesNo("Exercises");
 		}
 	}
-	private void registerGoal(){
-
+	private void registerGoal() throws SQLException{
+		scanner.nextLine();
 		boolean go = true;
 		while(go){
-			createGoal();
+			SQLUpdate(createGoal());
 			go=yesNo("Goals");
 		}
-		
 	}
  	private boolean yesNo(String What) {
 		String ans;
