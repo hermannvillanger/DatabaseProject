@@ -667,6 +667,83 @@ public class Driver {
 			go = yesNo("Exercises");
 		}
 	}
+	private void exerciseGroupCreation(){
+		
+		boolean addMoreGroups = true;
+		String groupName;
+		String description;
+		String exerciseAns;
+		
+		
+		while(addMoreGroups){
+			groupName = getGroupName();
+			ResultSet exists = SQLQuery("SELECT Group_Name FROM Exercise_Group WHERE Group_Name = "+ groupName);
+			if(exists.first()){
+				System.out.println("A group named " + groupName + " already exists:");
+				addExercisesToGroup(groupName); //TODO
+			}
+			else{
+				System.out.println("Add a description to " + groupName + " (max 140 characters)");
+				System.out.print(">");
+				description=scanner.nextLine();
+				description = "'" + description + "'";
+			
+				String Group_Name = createExerciseGroup(groupName, description);
+				SQLUpdate(Group_Name);
+				addExercisesToGroup(groupName);
+			}
+			
+			
+			addMoreGroups = yesNo("Exercise Groups");
+		}
+		
+		
+	}
+	/**
+	 * Dialogue for adding between 0 and n exercises to a specified Exercise Group
+	 */
+	private void addExercisesToGroup(String Group_Name){	
+		boolean addMoreExer;
+		String exerAns;
+		System.out.println("Currently these Exercises are added to " + Group_Name);
+		printExercisesInGroup(Group_Name);
+
+		addMoreExer = yesNo("Exercises to " + Group_Name);
+		
+		String exerciseName;
+		String description;
+		
+		while(addMoreExer){
+			System.out.println("What Exercise do you wish to add to " + Group_Name + "?");
+			System.out.println("If your Exercise does not exist in the list, write 'new'");
+			printExercises();
+			System.out.print(">");
+			exerAns = scanner.nextLine();
+			
+			if(exerAns.equalsIgnoreCase("new")){
+				String newExercise = createExercise();
+				SQLUpdate(newExercise);
+				int pos1 = newExercise.indexOf("VALUES");
+				int pos2 = newExercise.indexOf(",", pos1);
+				String Exercise_Name = newExercise.substring(pos1 + 8, pos2);
+				SQLUpdate(insertExerciseInGroup(Exercise_Name, Group_Name));
+				System.out.println("You have added the new Exercise " + Exercise_Name + " into the Exercise Group " + Group_Name);
+				System.out.println("Currently these Exercises are added to " + Group_Name);
+				printExercisesInGroup(Group_Name);
+				addMoreExer = yesNo("Exercises to " + Group_Name);
+			}else{
+				exerAns = "'" + exerAns + "'";
+				ResultSet exists = SQLQuery("SELECT Exercise_Name FROM Exercise WHERE Exercise_Name = "+ exerAns);
+				if(exists.first()){
+					SQLUpdate(insertExerciseInGroup(exerAns, Group_Name));
+					System.out.println("You have added " + exerAns + " into the Exercise Group " + groupAns );
+					addMoreExer = yesNo("Exercises to "+Group_Name);
+				}else{
+					System.out.println("This Exercise does not exist, make sure you look for typos. Add new Exercise by writing 'new'");
+				}
+			}
+		}
+	}
 	private void registerGoal() throws SQLException{
 		scanner.nextLine();
 		boolean go = true;
@@ -675,18 +752,23 @@ public class Driver {
 			go=yesNo("Goals");
 		}
 	}
- 	private boolean yesNo(String What) {
+	private boolean yesNo(String What) {
 		String ans;
-		System.out.println("Do you wish to add more " + What + "? (Y/N)");
+	
+		while(true){
+			
+			System.out.println("Do you wish to add more " + What + "? (Y/N)");
+			System.out.print(">");
+			ans = scanner.nextLine();
+			if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
+				return true;
+			}else if(ans.contains("N")||ans.contains("n")||ans.contains("No")||ans.contains("no")){
+				return false;
+			}else{
+				System.out.println("Invalid input, please check for typos");
+			}
+		}
 		
-		System.out.print(">");
-		ans=scanner.nextLine();
-		if(ans.contains("J")||ans.contains("j")||ans.contains("Y")||ans.contains("y")){
-			return true;
-		}
-		else{
-			return false;
-		}
 	}
 	private void finishedWorkout() throws SQLException{
 		System.out.println("Which workout did you do?");
