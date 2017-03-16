@@ -32,10 +32,11 @@ public class Driver {
  				System.out.println("4: Add a result to your workout");
  				System.out.println("5: Add goal to exercise");
  				System.out.println("6: Register Finished Workout");
- 				System.out.println("7: Review your Goals");
- 				System.out.println("8: Create Exercise Group");
+ 				System.out.println("7: Review your goals");
+ 				System.out.println("8: View existing information");
+ 				System.out.println("9: Create Exercise Group");
+
  				System.out.println("10: Exit");
- 				System.out.print(">");
  				Integer num=scanner.nextInt();
  				switch (num){
  				case 1: templateCreation();
@@ -51,8 +52,10 @@ public class Driver {
  				case 6: finishedWorkout();
  				break;
  				case 7: printExercisesWithGoalTime();
+ 				break;	
+ 				case 8: showInfo();
  				break;
- 				case 8: exerciseGroupCreation();
+ 				case 9: exerciseGroupCreation();
  				break;
  				case 10: makeChanges = false;
  				break;
@@ -183,7 +186,187 @@ public class Driver {
 		return "INSERT INTO Template (Gps_Time,Workout_Start) " +
 		"\nVALUES (" + Gps_Time + "," + Workout_Start +")";
 	}
-    
+	public void showInfo() throws SQLException {
+		boolean makeChanges = true;
+		while(makeChanges) {
+			System.out.println("What info do you want?");
+			System.out.println("1: Templates");
+			System.out.println("2: Exercises");
+			System.out.println("3: Workouts");
+			System.out.println("4: Exercise Groups");
+			System.out.println("10: Back");
+			System.out.println(">");
+			Integer num=scanner.nextInt();
+			switch (num){
+			case 1: templateInfo();
+			break;
+			case 2: exerciseInfo(null,null);
+			break;
+			case 3: workoutInfo();
+			break;
+			case 4: exerciseGroupInfo();
+			case 10: makeChanges = false;
+			break;
+			}
+		}
+	}
+	public void templateInfo() {
+		printTemplates(null);
+		boolean makeChanges = true;
+		while(makeChanges) {
+			System.out.println("1: Choose a template");
+			System.out.println("10: Back");
+			System.out.println(">");
+			Integer num=scanner.nextInt();
+			scanner.nextLine();
+			switch (num){
+			case 1: System.out.println("Which template do you want? (Id)");
+			System.out.print(">");
+			Integer answer = scanner.nextInt();
+			scanner.nextLine();
+			ResultSet exists = SQLQuery("SELECT Template_Id FROM Template WHERE Template_Id = "+ answer);
+			if(exists.first()) {
+				printTemplates(answer);
+			}
+			else {
+				System.out.println("This Template does not exist, make sure you look for typos");
+			}
+			break;
+			case 10: makeChanges = false;
+			break;
+			}
+		}
+	}
+	public void workoutInfo() {
+		printWorkouts();
+		boolean makeChanges = true;
+		while(makeChanges) {
+			System.out.println("1: Choose a workout");
+			System.out.println("10: Back");
+			System.out.println(">");
+			Integer num=scanner.nextInt();
+			scanner.nextLine();
+			switch (num){
+			case 1: System.out.println("Which workout do you want? (Date YYYY-MM-DD HH:MM:SS)");
+			System.out.print(">");
+			String answer = scanner.nextLine();
+			
+			ResultSet exists = SQLQuery("SELECT Workout_Start FROM Workout WHERE Workout_Start = "+ answer);
+			if(exists.first()) {
+				printWorkout(answer);
+			}
+			else {
+				System.out.println("This Workout does not exist, make sure you look for typos");
+			}
+			break;
+			case 10: makeChanges = false;
+			break;
+			}
+		}
+	}
+	public void exerciseGroupInfo() {
+		printExerciseGroups();
+		boolean makeChanges = true;
+		while(makeChanges) {
+			System.out.println("1: Choose an Exercise Group");
+			System.out.println("10: Back");
+			System.out.println(">");
+			Integer num=scanner.nextInt();
+			scanner.nextLine();
+			switch (num){
+			case 1: System.out.println("Which Exercise Group do you want? (Write the Group Name)");
+			System.out.print(">");
+			String answer = scanner.nextLine();
+			
+			ResultSet exists = SQLQuery("SELECT Group_Name FROM Exercise_Group WHERE Group_Name = "+ answer);
+			if(exists.first()) {
+			
+				exerciseInfo("exerciseGroup",answer);
+			}
+			else {
+				System.out.println("This Workout does not exist, make sure you look for typos");
+			}
+			break;
+			case 10: makeChanges = false;
+			break;
+			}
+		}
+	}
+	public void exerciseInfo(String activity,String id) {
+		
+		boolean makeChanges=false;
+		if (activity == null) {
+			printExercises();
+			boolean addMore = true;
+			while(addMore) {
+				System.out.println("1: Add an Exercise Group to an exercise");
+				System.out.println("10: Back");
+				System.out.println(">");
+				Integer num = scanner.nextInt();
+				scanner.nextLine();
+				switch (num){
+				case 1: 
+					System.out.println("Which Exercise do you wish to add Exercise Groups to?");
+					System.out.print(">");
+					String answer = scanner.nextLine();
+					ResultSet exists = SQLQuery("SELECT Exercise_Name FROM Exercise WHERE Exercise_Name = "+ answer);
+					if(exists.first()){
+						addGroupsToExercise(answer);
+					}else{
+						System.out.println("This Exercise does not exist, make sure you look for typos. Add new Group by writing 'new'");
+					}
+					
+				break;
+				case 10: addMore = false;
+				break;
+				}
+			}
+		}
+		else if(activity.equals("template")){
+			makeChanges = true;
+			ResultSet rs=SQLQuery("select exercise_name,description from template_contains natural join Exercise where template_id = " + id);
+			while(rs.next()){
+				System.out.println("Name: " + rs.getString(1) + ", description: " + rs.getString(2));
+			}
+		}
+		else if(activity.equals("exerciseGroup")){
+			printExercisesInGroup(id);
+			boolean addMore = true;
+			while(addMore) {
+				System.out.println("1: Add Exercises to this group");
+				System.out.println("10: Back");
+				System.out.println(">");
+				Integer num = scanner.nextInt();
+				scanner.nextLine();
+				switch (num){
+				case 1: addExercisesToGroup(id);
+				break;
+				case 10: addMore = false;
+				break;
+				}
+			}
+			
+			
+		}
+		else{
+			makeChanges= true;
+			ResultSet rs=SQLQuery("select exercise_name,description from workout_contains natural join Exercise where workout_id = " + id);
+			while(rs.next()){
+				System.out.println("Name: " + rs.getString(1) + ", description: " + rs.getString(2));
+			}
+		}
+		System.out.println("10: Back");
+		System.out.print(">");
+		
+		while(makeChanges) {
+			Integer num = scanner.nextInt();
+			scanner.nextLine();
+			switch (num){
+			case 10: makeChanges = false;
+			break;
+			}
+		}
+	}
 //TODO END CREATE TABLE
 //TODO GET FROM USER
 	private String getDescription() {
