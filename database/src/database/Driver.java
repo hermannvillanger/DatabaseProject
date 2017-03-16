@@ -34,7 +34,8 @@ public class Driver {
  				System.out.println("4: Add a result to your workout");
  				System.out.println("5: Add goal to exercise");
  				System.out.println("6: Register Finished Workout");
- 				System.out.println("7: Review your goals");
+ 				System.out.println("7: Review your Goals");
+ 				System.out.println("8: Create Exercise Group");
  				System.out.println("10: Exit");
  				System.out.print(">");
  				Integer num=scanner.nextInt();
@@ -52,6 +53,8 @@ public class Driver {
  				case 6: finishedWorkout();
  				break;
  				case 7: printExercisesWithGoalTime();
+ 				break;
+ 				case 8: exerciseGroupCreation();
  				break;
  				case 10: makeChanges = false;
  				break;
@@ -335,8 +338,9 @@ public class Driver {
 		myStmt = myConn.createStatement();
 		
 		ResultSet myRs = myStmt.executeQuery("select * from Exercise");
-		if(myRs.isBeforeFirst()){
+		if(myRs.first()){
 			System.out.println("Exercises:");
+			System.out.println(myRs.getString("Exercise_Name") + ": " + myRs.getString("Description"));
 			while(myRs.next()){
 				System.out.println(myRs.getString("Exercise_Name") + ": " + myRs.getString("Description"));
 			}
@@ -356,8 +360,7 @@ public class Driver {
 		
 		ResultSet myRs = myStmt.executeQuery("select * from Workout where Workout.Workout_Start = " +  Workout_Start);
 		System.out.println("Workout_Start, Workout_End, Shape, Performance, Template_Id, Climate");
-		if(myRs.isBeforeFirst()){
-			myRs.next();
+		if(myRs.first()){
 			System.out.println( myRs.getString("Workout_Start") + "," + myRs.getString("Workout_End") + 
 					"," + myRs.getString("Shape") + "," + myRs.getString("Performance") + 
 					"," + myRs.getString("Template_Id") + "," + myRs.getString("Climate") );
@@ -379,8 +382,10 @@ public class Driver {
 		myStmt = myConn.createStatement();
 		
 		ResultSet myRs = myStmt.executeQuery("select Workout_Start, Workout_End,Template_Id from Workout");
-		if(myRs.isBeforeFirst()){
+		if(myRs.first()){
 			System.out.println("Workout_Start, Workout_End, Template_Id");
+			System.out.println( myRs.getString("Workout_Start") + "," + myRs.getString("Workout_End") + 
+					"," + myRs.getString("Template_Id"));
 			while(myRs.next()){
 				System.out.println( myRs.getString("Workout_Start") + "," + myRs.getString("Workout_End") + 
 						"," + myRs.getString("Template_Id"));
@@ -395,8 +400,9 @@ public class Driver {
 		myStmt = myConn.createStatement();
 		
 		ResultSet myRs = myStmt.executeQuery("select * from Exercise_Group");
-		if(myRs.isBeforeFirst()){
+		if(myRs.first()){
 			System.out.println("Exercise Groups:");
+			System.out.println(myRs.getString("Group_Name") + ": " + myRs.getString("Description"));
 			while(myRs.next()){
 				System.out.println(myRs.getString("Group_Name") + ": " + myRs.getString("Description"));
 			}
@@ -409,17 +415,17 @@ public class Driver {
 //Prints one group, with all exercises
 		myStmt = myConn.createStatement();
 		ResultSet myRs = myStmt.executeQuery("select * from exercise_group where group_name = " + Group_Name);
-		if(myRs.isBeforeFirst()){
+		if(myRs.first()){
 			System.out.println("Exercise Group:");
-			myRs.next();
 			System.out.println(myRs.getString("Group_Name") + ": " + myRs.getString("Description"));
-			ResultSet exRs = SQLQuery("select * from exercise_group natural join "
+			
+			ResultSet exRs = SQLQuery("select exercise.exercise_name,exercise.description from exercise_group natural join "
 					+ "exercise_in_group join exercise on exercise.Exercise_Name = "
 					+ "exercise_in_group.Exercise_Name where group_name = " + Group_Name);
 			if(exRs.isBeforeFirst()){
 				System.out.println("Exercise Name: Description");
-				while(myRs.next()){
-					System.out.println(myRs.getString("Exercise_Name") + ": " + myRs.getString("Description"));
+				while(exRs.next()){
+					System.out.println(exRs.getString("Exercise_Name") + ": " + exRs.getString("Description"));
 				}
 			}
 			else{
@@ -461,13 +467,11 @@ public class Driver {
 			myStmt = myConn.createStatement();
 			
 			ResultSet myRs = myStmt.executeQuery("select * from Template Where Template_Id = " + Template_Id);
-			if(myRs.isBeforeFirst()){
-				
+			if(myRs.first()){
 				System.out.println("Template:");
-				myRs.next();
 				System.out.println(myRs.getString("Template_Id") + ": " + myRs.getString("Template_Name"));
-				ResultSet a = SQLQuery("select Exercise_Name from template_contains where template_Id = " + Template_Id);
-				if(myRs.isBeforeFirst()){
+				ResultSet a = SQLQuery("select Exercise_Name from Template_Contains Where Template_Id = " + Template_Id);
+				if(a.isBeforeFirst()){
 					while (a.next()) {
 						String exercise=a.getString("Exercise_Name");
 						System.out.println(exercise);
@@ -637,6 +641,7 @@ public class Driver {
 			System.out.println("Which unit will the exercise be recorded in? (kg, km, m, minutes etc.)");
 			System.out.print(">");
 			String unit = "'" + scanner.nextLine() + "'";			
+
 			SQLUpdate(createExercise(ans, description, unit));
 			System.out.println("You have now created the Exercise: " + ans);
 			addGroupsToExercise(ans);
@@ -654,14 +659,15 @@ public class Driver {
 		boolean addMoreGroups = true;
 		String groupName;
 		String description;
-		
-		
+		scanner.nextLine();
+
 		while(addMoreGroups){
 			groupName = getGroupName();
 			ResultSet exists = SQLQuery("SELECT Group_Name FROM Exercise_Group WHERE Group_Name = "+ groupName);
 			if(exists.first()){
 				System.out.println("A group named " + groupName + " already exists:");
-				addExercisesToGroup(groupName); //TODO
+				addExercisesToGroup(groupName);
+
 			}
 			else{
 				System.out.println("Add a description to " + groupName + " (max 140 characters)");
@@ -757,6 +763,8 @@ public class Driver {
 				if(exists.first()){
 					SQLUpdate(insertExerciseInGroup(exerAns, Group_Name));
 					System.out.println("You have added " + exerAns + " into the Exercise Group " + Group_Name );
+					printExercisesInGroup(Group_Name);
+
 					addMoreExer = yesNo("Exercises to "+Group_Name);
 				}else{
 					System.out.println("This Exercise does not exist, make sure you look for typos. Add new Exercise by writing 'new'");
