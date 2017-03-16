@@ -1,6 +1,9 @@
 package database;
 
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -31,6 +34,7 @@ public class Driver {
  				System.out.println("4: Add a result to your workout");
  				System.out.println("5: Add goal to exercise");
  				System.out.println("6: Register Finished Workout");
+ 				System.out.println("7: Review your goals");
 
  				System.out.println("10: Exit");
  				Integer num=scanner.nextInt();
@@ -46,6 +50,8 @@ public class Driver {
  				case 5: registerGoal();
  				break;
  				case 6: finishedWorkout();
+ 				break;
+ 				case 7:printExercisesWithGoalTime();
  				break;
  				case 10: makeChanges = false;
  				break;
@@ -325,6 +331,12 @@ public class Driver {
 			System.out.println(myRs.getString("Exercise_Name") + ": " + myRs.getString("Description"));
 		}
 	}	
+	private void printGoalsFromExercise(String exercise) throws SQLException{
+		ResultSet rs=SQLQuery("select goal_id,goal from Goal where Exercise_Name = " + exercise);
+		while(rs.next()){
+			System.out.println(rs.getString(1) + ": " + rs.getString(2));
+		}
+	}
 	public void printWorkout(String Workout_Start) throws SQLException{
 		myStmt = myConn.createStatement();
 		
@@ -395,6 +407,34 @@ public class Driver {
 				}
 		}
 	}
+	private void printExercisesWithGoalTime() throws SQLException, ParseException{
+		boolean valid=false;
+		String exercise="";
+		while(!valid){
+			System.out.println("Which exercise do you wish to review your goals for?");
+			printExercises();
+			System.out.print(">");
+			exercise=scanner.nextLine();
+			exercise="'" + exercise + "'";
+			ResultSet rs1= SQLQuery("SELECT Exercise_Name FROM Exercise WHERE exercise_name = "+ exercise);
+			if(rs1.first()){
+				valid=true;
+			}
+			else{
+				System.out.println("This exercise does not exist yet. Please enter a valid exercise name");
+			}
+		}
+		System.out.println("Which goal do you wish to review your results for? (goal #)");
+		printGoalsFromExercise(exercise);
+		System.out.print(">");
+		Integer goal=scanner.nextInt();
+		ResultSet rs2=SQLQuery("Select Start_date,End_date from goal where goal_id = " + goal);
+		if(rs2.first()){
+			String start=rs2.getString(1);
+			String end=rs2.getString(2);
+			getResults(exercise,start,end);
+		}
+	}
 	
 	public ArrayList<String> getTemplatesArray(Integer Template_Id) throws SQLException {
 		myStmt = myConn.createStatement();
@@ -408,17 +448,33 @@ public class Driver {
 		}
 		return tempArr;
 	}
-
+	
 	
 //TODO END PRINT
 //TODO GET RESULT/GOAL INFORMATION
-	public void getResults(String Exercise_Name) throws SQLException{
-		ResultSet results = myStmt.executeQuery("SELECT * FROM Workout_Result WHERE Exercise_Name = " + Exercise_Name);
-		System.out.println("Results for " + Exercise_Name);
-		while(results.next()){
-			System.out.println(results.getString("Res_Date") + "," +results.getString("Strain") + "," + results.getString("Unit") + "," + results.getString("Repetitions"));
-		}	
+	public void getResults(String Exercise_Name, String start, String end) throws SQLException, ParseException{
+		DateFormat formatter=new SimpleDateFormat("yyyy-mm-dd");
+		Date startDate=(Date) formatter.parse(start);
+		Date endDate=(Date) formatter.parse(end);
+		String statement="select repetitions,strain,unit from Workout_result";
+		if(start!=null || end!=null){
+			statement+=" where";
+		}
+		if(start!=null){
+			statement+=" Workout_start >= ' "+ startDate + " 00:00:00'";
+		}
+		if(start!=null && end!=null){
+			statement+=" and";
+		}
+		if(end!=null){
+			statement+="Workout_start <= '" + endDate + " 23:59:59'";
+		}
+		ResultSet rs=SQLQuery(statement);
+		while(rs.next()){
+			System.out.println(rs.getString(1) + "|" + rs.getString(2) + "|" + rs.getString(3));
+		}
 	}
+	
 	public Integer getGoal(String Exercise_Name) throws SQLException{
 		ResultSet goal = myStmt.executeQuery("SELECT Goal FROM Goal Where Exercise_Name = " + Exercise_Name);
 		if (goal.next()){
