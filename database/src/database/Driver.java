@@ -20,9 +20,8 @@ public class Driver {
 	}
 	void run(){
  		try{
- 			// 1. Get a connection to database
- 			myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projectdatabase?autoReconnect=true&useSSL=false","project","project");
- 			
+ 			// Connect to database
+ 			myConn = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/hermannv_tdt4145database?autoReconnect=true&useSSL=false","hermannv_tdt4145","hermannv_tdt4145");
  			boolean makeChanges = true;
  			while(makeChanges){
  				System.out.println("What do you want to do?");
@@ -348,7 +347,7 @@ public class Driver {
 		}
 	}	
 	private void printGoalsFromExercise(String exercise) throws SQLException{
-		ResultSet rs=SQLQuery("select goal_id,goal from Goal where Exercise_Name = " + exercise);
+		ResultSet rs=SQLQuery("select Goal_Id,goal from Goal where Exercise_Name = " + exercise);
 		while(rs.next()){
 			System.out.println(rs.getString(1) + ": " + rs.getString(2));
 		}
@@ -356,16 +355,16 @@ public class Driver {
 	public void printWorkout(String Workout_Start) throws SQLException{
 		myStmt = myConn.createStatement();
 		
-		ResultSet myRs = myStmt.executeQuery("select * from Workout where Workout.Workout_Start = " +  Workout_Start);
+		ResultSet myRs = myStmt.executeQuery("Select * From Workout Where Workout.Workout_Start = " +  Workout_Start);
 		System.out.println("Workout_Start, Workout_End, Shape, Performance, Template_Id, Climate");
 		if(myRs.first()){
 			System.out.println( myRs.getString("Workout_Start") + "," + myRs.getString("Workout_End") + 
 					"," + myRs.getString("Shape") + "," + myRs.getString("Performance") + 
 					"," + myRs.getString("Template_Id") + "," + myRs.getString("Climate") );
-			String query = "select exercise.Exercise_Name,Description "
-					+ "from Workout Join Workout_Contains on Workout.Workout_Start = Workout_Contains.Workout_Start "
+			String query = "Select Exercise.Exercise_Name,Description "
+					+ "From Workout Join Workout_Contains on Workout.Workout_Start = Workout_Contains.Workout_Start "
 					+ " Join Exercise on Exercise.Exercise_Name = Workout_Contains.Exercise_Name "+
-					"where Workout.Workout_Start =" +  Workout_Start;
+					"Where Workout.Workout_Start =" +  Workout_Start;
 			myRs = myStmt.executeQuery(query);
 			System.out.println("Exercises:");
 			while(myRs.next()){
@@ -412,14 +411,14 @@ public class Driver {
 	public void printExercisesInGroup(String Group_Name) throws SQLException{
 //Prints one group, with all exercises
 		myStmt = myConn.createStatement();
-		ResultSet myRs = myStmt.executeQuery("select * from exercise_group where group_name = " + Group_Name);
+		ResultSet myRs = myStmt.executeQuery("select * from Exercise_Group where Group_Name = " + Group_Name);
 		if(myRs.first()){
 			System.out.println("Exercise Group:");
 			System.out.println(myRs.getString("Group_Name") + ": " + myRs.getString("Description"));
 			
-			ResultSet exRs = SQLQuery("select exercise.exercise_name,exercise.description from exercise_group natural join "
-					+ "exercise_in_group join exercise on exercise.Exercise_Name = "
-					+ "exercise_in_group.Exercise_Name where group_name = " + Group_Name);
+			ResultSet exRs = SQLQuery("select Exercise.Exercise_Name,Exercise.Description from Exercise_Group natural join "
+					+ "Exercise_In_Group join Exercise on Exercise.Exercise_Name = "
+					+ "Exercise_In_Group.Exercise_Name where Group_Name = " + Group_Name);
 			if(exRs.isBeforeFirst()){
 				System.out.println("Exercise Name: Description");
 				while(exRs.next()){
@@ -435,7 +434,7 @@ public class Driver {
 		}
 	
 	}
-	public void printTemplates(Integer Template_Id) throws SQLException{
+	public boolean printTemplates(Integer Template_Id) throws SQLException{
 		if (Template_Id == null) {
 			myStmt = myConn.createStatement();
 			
@@ -445,7 +444,7 @@ public class Driver {
 				while(myRs.next()){
 					int Id = myRs.getInt("Template_Id");
 					System.out.println(Id + ": " + myRs.getString("Template_Name"));
-					ResultSet a = SQLQuery("select Exercise_Name from template_contains where template_Id = " + Id);
+					ResultSet a = SQLQuery("select Exercise_Name from Template_Contains where Template_Id = " + Id);
 					if(a.isBeforeFirst()){
 						while (a.next()) {
 							String exercise=a.getString("Exercise_Name");
@@ -456,9 +455,11 @@ public class Driver {
 						System.out.println("The Template does not have any Exercises");
 					}
 				}
+				return true;
 			}
 			else{
 				System.out.println("There are no saved Templates");
+				return false;
 			}
 		}
 		else {
@@ -477,10 +478,12 @@ public class Driver {
 				}
 				else{
 					System.out.println("The Template does not have any Exercises");
-				}
+				}				
+				return true;
 			}
 			else{
 				System.out.println("The Template does not exist");
+				return false;
 			}
 		}
 	}
@@ -515,10 +518,9 @@ public class Driver {
 		myStmt = myConn.createStatement();
 		ArrayList<String> tempArr= new ArrayList<String>();
 		
-		ResultSet a = SQLQuery("select Exercise_Name from template_contains where template_Id = " + Template_Id);
+		ResultSet a = SQLQuery("select Exercise_Name from Template_Contains where Template_Id = " + Template_Id);
 		while (a.next()) {
 			String exercise=a.getString("Exercise_Name");
-			// System.out.println(exercise);
 			tempArr.add("'" + exercise + "'");
 		}
 		return tempArr;
@@ -526,7 +528,7 @@ public class Driver {
 //TODO END PRINT
 //TODO GET RESULT/GOAL INFORMATION
 	public void getResults(String Exercise_Name, String start, String end) throws SQLException, ParseException{
-		String statement="select repetitions,strain,unit from Workout_result join Exercise on Exercise.Exercise_Name = Workout_Result.Exercise_Name where Workout_result.exercise_name=" + Exercise_Name;
+		String statement="select Repetitions,Strain,Unit from Workout_result join Exercise on Exercise.Exercise_Name = Workout_Result.Exercise_Name where Workout_Result.Exercise_Name=" + Exercise_Name;
 		if(start!=null || end!=null){
 			statement+=" and";
 		}
@@ -593,28 +595,37 @@ public class Driver {
 			System.out.print(">");
 			String ans=scanner.nextLine();
 			if(ans.equals("J")||ans.equals("j")||ans.equals("Y")||ans.equals("y")){
-				printTemplates(null);
-				Integer num = Integer.valueOf(getTemplateId());
-				printTemplates(num);
-				
-				String update = "Update Workout Set Template_Id = "+ num + 
-						"\n Where Workout_Start = " + Workout_Start;
-				SQLUpdate(update);
-				ArrayList<String> exercises = getTemplatesArray(num);
-				for(int i=0;i<exercises.size();i++){
-					SQLUpdate(createWorkoutContains(Workout_Start,exercises.get(i)));
+				if(!printTemplates(null)){
+					System.out.println("Do you want to create a template? (Y/N)");
+					System.out.print(">");
+					ans=scanner.nextLine();
+					if(ans.equals("J")||ans.equals("j")||ans.equals("Y")||ans.equals("y")){
+						templateCreation();					
+					}
 				}
-				boolean go;
-				go = yesNo("Workouts");
-				while(go){
-					printExercises();
-					ans = getExerciseName();
-					SQLUpdate(createWorkoutContains(Workout_Start ,ans));
-					go = yesNo("Workouts");
+				else{
+					Integer num = Integer.valueOf(getTemplateId());
+					printTemplates(num);
+					
+					String update = "Update Workout Set Template_Id = "+ num + 
+							"\n Where Workout_Start = " + Workout_Start;
+					SQLUpdate(update);
+					ArrayList<String> exercises = getTemplatesArray(num);
+					for(int i=0;i<exercises.size();i++){
+						SQLUpdate(createWorkoutContains(Workout_Start,exercises.get(i)));
+					}
 				}
-				System.out.println("The following workout has been created: ");
-				printWorkout(Workout_Start);
 			}
+			boolean go;
+			go = yesNo("Exercises");
+			while(go){
+				printExercises();
+				ans = getExerciseName();
+				SQLUpdate(createWorkoutContains(Workout_Start ,ans));
+				go = yesNo("Workouts");
+			}
+			System.out.println("The following workout has been created: ");
+			printWorkout(Workout_Start);
 		}
 	private void exerciseCreation() throws SQLException{
 		scanner.nextLine();
@@ -825,7 +836,7 @@ public class Driver {
 		System.out.println("What do you want to name your template? ");
 		String templateName = getTemplateName();
 		SQLUpdate(createTemplate(templateName));
-		ResultSet rs = SQLQuery("Select last_insert_id() from Template");
+		ResultSet rs = SQLQuery("Select Last_Insert_Id() from Template");
 		rs.next();
 		Integer id= Integer.valueOf(rs.getString(1));
 		
