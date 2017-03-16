@@ -35,8 +35,8 @@ public class Driver {
  				System.out.println("5: Add goal to exercise");
  				System.out.println("6: Register Finished Workout");
  				System.out.println("7: Review your goals");
-
  				System.out.println("10: Exit");
+ 				System.out.print(">");
  				Integer num=scanner.nextInt();
  				switch (num){
  				case 1: templateCreation();
@@ -51,7 +51,7 @@ public class Driver {
  				break;
  				case 6: finishedWorkout();
  				break;
- 				case 7:printExercisesWithGoalTime();
+ 				case 7: printExercisesWithGoalTime();
  				break;
  				case 10: makeChanges = false;
  				break;
@@ -307,6 +307,13 @@ public class Driver {
 		String Gps_Time = "'" + scanner.nextLine() + "'";
 		return Gps_Time;
 	}
+	private Integer getGoalId() {
+		System.out.println("Goal Id:");
+		System.out.print(">");
+		Integer Goal_Id=scanner.nextInt();
+		return Goal_Id;
+	}
+	
 /*TODO TIL MULIG FORENKLING AV KODEN
 	private String getInteger(String What) {
 		System.out.println(What + ":(Integer)");
@@ -478,13 +485,12 @@ public class Driver {
 
 	private void printExercisesWithGoalTime() throws SQLException, ParseException{
 		boolean valid=false;
-		String exercise="";
+		String exercise = "";
+		scanner.nextLine();
 		while(!valid){
 			System.out.println("Which exercise do you wish to review your goals for?");
 			printExercises();
-			System.out.print(">");
-			exercise=scanner.nextLine();
-			exercise="'" + exercise + "'";
+			exercise = getExerciseName();
 			ResultSet rs1= SQLQuery("SELECT Exercise_Name FROM Exercise WHERE exercise_name = "+ exercise);
 			if(rs1.first()){
 				valid=true;
@@ -495,8 +501,7 @@ public class Driver {
 		}
 		System.out.println("Which goal do you wish to review your results for? (goal #)");
 		printGoalsFromExercise(exercise);
-		System.out.print(">");
-		Integer goal=scanner.nextInt();
+		Integer goal = getGoalId();
 		ResultSet rs2=SQLQuery("Select Start_date,End_date from goal where goal_id = " + goal);
 		if(rs2.first()){
 			String start=rs2.getString(1);
@@ -519,25 +524,29 @@ public class Driver {
 //TODO END PRINT
 //TODO GET RESULT/GOAL INFORMATION
 	public void getResults(String Exercise_Name, String start, String end) throws SQLException, ParseException{
-		DateFormat formatter=new SimpleDateFormat("yyyy-mm-dd");
-		Date startDate=(Date) formatter.parse(start);
-		Date endDate=(Date) formatter.parse(end);
-		String statement="select repetitions,strain,unit from Workout_result";
+		String statement="select repetitions,strain,unit from Workout_result join Exercise on Exercise.Exercise_Name = Workout_Result.Exercise_Name where Workout_result.exercise_name=" + Exercise_Name;
 		if(start!=null || end!=null){
-			statement+=" where";
-		}
-		if(start!=null){
-			statement+=" Workout_start >= ' "+ startDate + " 00:00:00'";
-		}
-		if(start!=null && end!=null){
 			statement+=" and";
 		}
+		if(start!=null){
+			statement+=" Workout_start >= ' "+ start + " 00:00:00'";
+		}
+		if(start!=null && end!=null){
+			statement+=" and ";
+		}
 		if(end!=null){
-			statement+="Workout_start <= '" + endDate + " 23:59:59'";
+			statement+=" Workout_start <= '" + end + " 23:59:59'";
 		}
 		ResultSet rs=SQLQuery(statement);
-		while(rs.next()){
-			System.out.println(rs.getString(1) + "|" + rs.getString(2) + "|" + rs.getString(3));
+		if(rs.first()){
+			System.out.println("Your results between " + start + " and " + end + "(in " +rs.getString(3) + ")" );
+			System.out.println(Integer.valueOf(rs.getString(1)) * Integer.valueOf(rs.getString(2)));
+			while(rs.next()){
+				System.out.println(Integer.valueOf(rs.getString(1)) * Integer.valueOf(rs.getString(2)));
+			}
+		}
+		else{
+			System.out.println("You do not have any results yet. Git gud");
 		}
 	}
 	
@@ -610,9 +619,13 @@ public class Driver {
 		
 		String ans;
 		String description;
+
 		String goalReg;
 		
 //		TODO: Ask for unit: which unit will the strain be in
+
+		String groupAns;
+
 		boolean go = true;
 		while(go){
 			ans = getExerciseName();
@@ -621,7 +634,7 @@ public class Driver {
 			System.out.print(">");
 			description=scanner.nextLine();
 			description = "'" + description + "'";
-			System.out.println("What unit will the exercise be recorded in? (kg, km, m, minutes...)");
+			System.out.println("Which unit will the exercise be recorded in? (kg, km, m, minutes etc.)");
 			System.out.print(">");
 			String unit = "'" + scanner.nextLine() + "'";			
 			SQLUpdate(createExercise(ans, description, unit));
@@ -836,6 +849,7 @@ public class Driver {
 		String exercise;
 		String statement;
 		while(go){
+			printWorkout(workout);
 			System.out.println("which exercise do you wish to add a result to?");
 			ResultSet b =SQLQuery("Select Exercise_name from Workout_Contains where workout_start = " + workout);
 			while(b.next()){
