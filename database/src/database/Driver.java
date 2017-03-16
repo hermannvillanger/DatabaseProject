@@ -83,6 +83,11 @@ public class Driver {
 		return "INSERT INTO Exercise_Group (Group_Name,Description) " +
 		"\nVALUES (" + Group_Name + "," + Description +")";
 	}
+	public String createExerciseGroup(String Group_Name, String Description){
+
+		return "INSERT INTO Exercise_Group (Group_Name,Description) " +
+		"\nVALUES (" + Group_Name + "," + Description +")";
+	}
 	public String createExerciseResult(String exercise_name,String workout_start) throws SQLException{
 		System.out.println("Exercise Result");
 		Integer Strain = Integer.valueOf(getStrain());
